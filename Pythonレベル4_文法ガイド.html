@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python レベル4 文法ガイド（模擬試験の前に）</title>
+<style>
+  :root{
+    --bg:#f5f7fb; --card:#fff; --ink:#1f2933; --sub:#54616e; --line:#e0e5eb; --accent:#2f6bd6;
+    --code-bg:#2b2f3a; --code-ink:#f2f4f8;
+    --tip-bg:#fff8e8; --tip-line:#f0d99a; --tip-ink:#7a5b12;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;padding:26px 16px 70px;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI","Hiragino Kaku Gothic ProN","Meiryo",sans-serif;line-height:1.8;}
+  .wrap{max-width:820px;margin:0 auto;}
+  header.top h1{font-size:1.35rem;margin:0 0 6px;}
+  header.top p{margin:0 0 6px;color:var(--sub);font-size:.9rem;}
+  .toc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:16px 0 26px;}
+  .toc b{font-size:.9rem;}
+  .toc ol{margin:6px 0 0;padding-left:1.3em;}
+  .toc a{color:var(--accent);text-decoration:none;}
+  .topic{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:22px 20px;margin-bottom:24px;box-shadow:0 1px 3px rgba(30,40,60,.05);}
+  .topic h2{font-size:1.1rem;margin:0 0 4px;display:flex;align-items:center;gap:10px;}
+  .topic h2 .num{background:var(--accent);color:#fff;font-size:.8rem;font-weight:700;
+    width:1.7em;height:1.7em;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;flex:none;}
+  .lead{color:#33404d;margin:6px 0 14px;}
+  h3.sec{font-size:.92rem;margin:16px 0 8px;padding-left:9px;border-left:4px solid var(--accent);color:#2a3947;}
+  pre{margin:0 0 6px;background:var(--code-bg);color:var(--code-ink);padding:13px 15px;border-radius:9px;
+    overflow-x:auto;font-family:"Consolas","SFMono-Regular","Menlo",monospace;font-size:.88rem;line-height:1.55;}
+  .outlabel{font-size:.82rem;color:var(--sub);margin:0 0 14px;}
+  .outlabel code{background:#eef2f8;color:#2a3947;padding:1px 7px;border-radius:5px;
+    font-family:"Consolas","Menlo",monospace;}
+  code.inl{background:#2b2f3a;color:#f2f4f8;padding:1px 6px;border-radius:5px;
+    font-family:"Consolas","Menlo",monospace;font-size:.85em;}
+  table.lines{width:100%;border-collapse:collapse;margin:0 0 8px;font-size:.9rem;}
+  table.lines td{border-bottom:1px solid var(--line);padding:7px 8px;vertical-align:top;}
+  table.lines td.c{white-space:pre;font-family:"Consolas","Menlo",monospace;color:#0d2b52;background:#f2f6fc;
+    border-radius:4px;width:1%;}
+  table.lines td.d{color:var(--sub);}
+  .tip{background:var(--tip-bg);border:1px solid var(--tip-line);color:var(--tip-ink);border-radius:9px;
+    padding:11px 14px;font-size:.9rem;margin-top:12px;}
+  .tip b{font-weight:800;}
+  ul.mini{margin:6px 0 12px;padding-left:1.3em;}
+  ul.mini li{margin:3px 0;}
+  @media print{body{background:#fff;}.topic{box-shadow:none;break-inside:avoid;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Python レベル4 文法ガイド</h1>
+    <p>模擬試験を解く前に、レベル4で出てくる文法を先に知っておくための教材です。</p>
+    <p style="font-size:.82rem;">※ <code class="inl">import const</code> と <code class="inl">const.XXXX</code> は、検定で使う「定数（一度決めたら変えられない値）」の書き方です。</p>
+  </header>
+
+  <div class="toc">
+    <b>この教材で学ぶこと</b>
+    <div style="font-size:.82rem;color:var(--sub);margin:8px 0 2px;font-weight:700;">■ レベル4の重点（新しく出る文法）</div>
+    <ol>
+      <li><a href="#t1">定数（const）</a></li>
+      <li><a href="#t2">switch ＝ match / case 文</a></li>
+      <li><a href="#t3">配列（リスト）の操作：参照・追加・削除</a></li>
+      <li><a href="#t4">while 文（条件がTrueの間くり返す）</a></li>
+      <li><a href="#t5">ループの中断・継続：break / continue</a></li>
+    </ol>
+    <div style="font-size:.82rem;color:var(--sub);margin:10px 0 2px;font-weight:700;">■ あわせて出てくる基礎（レベル1〜3の復習）</div>
+    <ol start="6">
+      <li><a href="#t6">for 文 と range</a></li>
+      <li><a href="#t7">if / elif / else（条件分岐）</a></li>
+      <li><a href="#t8">関数（def・引数・戻り値 return）</a></li>
+      <li><a href="#t9">型変換（str・int）と文字列の連結</a></li>
+      <li><a href="#t10">リストに「含まれるか」を調べる（in）</a></li>
+    </ol>
+  </div>
+
+  <!-- 1 定数 -->
+  <div class="topic" id="t1">
+    <h2><span class="num">1</span>定数（const）</h2>
+    <div class="lead">定数とは「<b>一度決めたら、あとから変えられない値</b>」のこと。検定では <code class="inl">import const</code> を書いて、<code class="inl">const.名前 = 値</code> の形で定義します。</div>
+
+    <h3 class="sec">正しい書き方</h3>
+<pre>import const
+
+const.TAX = 10          # ← 定数を「定義」する（最初の1回だけ）
+
+price = 200             # ← 変化させたいものは"普通の変数"にする
+price = price + const.TAX   # 普通の変数は変更OK。定数は"使うだけ"
+print(price)</pre>
+    <div class="outlabel">出力： <code>210</code></div>
+    <table class="lines">
+      <tr><td class="c">import const</td><td class="d">定数を扱う機能を読み込む。</td></tr>
+      <tr><td class="c">const.TAX = 10</td><td class="d">定数 TAX を 10 で定義。定数名は大文字で書くのがふつう。</td></tr>
+      <tr><td class="c">price = 200</td><td class="d">後で変えたい値は、定数ではなく普通の変数にする。</td></tr>
+      <tr><td class="c">price = price + const.TAX</td><td class="d">定数 TAX は"読むだけ"。計算結果は普通の変数 price に入れる。</td></tr>
+    </table>
+    <div class="tip"><b>つまずきポイント：</b>定数は「定義（最初の代入）」はOKだけど、<b>あとから <code class="inl">const.TAX = const.TAX + 1</code> のように書き換えるとエラー</b>。合計・カウントなど“変化していく入れ物”には、必ず普通の変数を使う。</div>
+  </div>
+
+  <!-- 2 match -->
+  <div class="topic" id="t2">
+    <h2><span class="num">2</span>switch ＝ match / case 文</h2>
+    <div class="lead">他の言語の「switch」にあたる、値による分かれ道です。Pythonでは <code class="inl">match</code> と <code class="inl">case</code> を使います。</div>
+
+    <h3 class="sec">正しい書き方</h3>
+<pre>signal = "赤"
+
+match signal:
+    case "赤":
+        print("止まれ")
+    case "青":
+        print("進め")
+    case _:
+        print("注意")</pre>
+    <div class="outlabel">出力： <code>止まれ</code></div>
+    <table class="lines">
+      <tr><td class="c">match signal:</td><td class="d">signal の中身で分かれる。<b>match のあとに“調べる値”</b>を書く。</td></tr>
+      <tr><td class="c">    case "赤":</td><td class="d">signal が "赤" のとき…「止まれ」。</td></tr>
+      <tr><td class="c">    case "青":</td><td class="d">signal が "青" のとき…「進め」。</td></tr>
+      <tr><td class="c">    case _:</td><td class="d"><code class="inl">_</code> は「上のどれにも当てはまらないとき（＝その他すべて）」。</td></tr>
+    </table>
+    <div class="tip"><b>つまずきポイント：</b>
+      <ul class="mini">
+        <li><code class="inl">match signal:</code> の“調べる値”を忘れない（<code class="inl">match:</code> だけはNG）。</li>
+        <li>分かれ道は <code class="inl">if</code> ではなく <b><code class="inl">case</code></b> を使う。</li>
+        <li><code class="inl">case value == "赤":</code> のように“条件式”を書くのは誤り。<code class="inl">case</code> の後ろには“<b>値そのもの（パターン）</b>”を書く（例：<code class="inl">case "赤":</code>）。</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 3 配列操作 -->
+  <div class="topic" id="t3">
+    <h2><span class="num">3</span>配列（リスト）の操作：参照・追加・削除</h2>
+    <div class="lead">複数の値をまとめて入れる箱が「リスト（配列）」。<b>番号は 0 から</b>数えます。</div>
+
+    <h3 class="sec">正しい書き方</h3>
+<pre>fruits = ["りんご", "みかん", "ぶどう"]
+
+print(fruits[0])          # 参照：0番目 → りんご
+print(fruits[2])          # 参照：2番目 → ぶどう
+
+fruits.append("もも")     # 追加：末尾に「もも」を足す
+
+fruits.remove("みかん")   # 削除：値「みかん」を消す
+del fruits[0]             # 削除：0番目（りんご）を消す
+
+print(fruits)</pre>
+    <div class="outlabel">出力： <code>りんご</code> / <code>ぶどう</code> / <code>['ぶどう', 'もも']</code></div>
+    <table class="lines">
+      <tr><td class="c">fruits = [...]</td><td class="d">3つの値が入ったリストを作る。</td></tr>
+      <tr><td class="c">fruits[0]</td><td class="d"><b>参照</b>。番号で1つ取り出す。0番目＝りんご、2番目＝ぶどう。</td></tr>
+      <tr><td class="c">fruits.append("もも")</td><td class="d"><b>追加</b>。<code class="inl">.append(値)</code> で末尾に足す。</td></tr>
+      <tr><td class="c">fruits.remove("みかん")</td><td class="d"><b>削除（値で）</b>。<code class="inl">.remove(値)</code> はその値を探して消す。</td></tr>
+      <tr><td class="c">del fruits[0]</td><td class="d"><b>削除（番号で）</b>。<code class="inl">del リスト[番号]</code> はその場所を消す。</td></tr>
+    </table>
+    <div class="tip"><b>つまずきポイント：</b>
+      <ul class="mini">
+        <li>番号は <b>0から</b>。3個のリストの番号は 0・1・2。存在しない番号（例：<code class="inl">fruits[3]</code>）を参照するとエラー。</li>
+        <li><code class="inl">remove</code> は“<b>値</b>”で消す、<code class="inl">del</code> は“<b>番号</b>”で消す。取り違えに注意。</li>
+        <li>（参考）<code class="inl">リスト.pop(番号)</code> は「取り出しながら削除」。<code class="inl">len(リスト)</code> は個数。</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 4 while -->
+  <div class="topic" id="t4">
+    <h2><span class="num">4</span>while 文（条件がTrueの間くり返す）</h2>
+    <div class="lead"><code class="inl">while 条件:</code> は、<b>条件が成り立っている間ずっと</b>くり返します。</div>
+
+    <h3 class="sec">正しい書き方</h3>
+<pre>count = 1
+
+while count <= 3:
+    print(count)
+    count = count + 1      # ← これを忘れると永遠に終わらない
+
+print("おわり")</pre>
+    <div class="outlabel">出力： <code>1</code> / <code>2</code> / <code>3</code> / <code>おわり</code></div>
+    <table class="lines">
+      <tr><td class="c">count = 1</td><td class="d">数える変数を1から始める。</td></tr>
+      <tr><td class="c">while count <= 3:</td><td class="d">count が 3 以下の間くり返す。</td></tr>
+      <tr><td class="c">    print(count)</td><td class="d">今の count を表示。</td></tr>
+      <tr><td class="c">    count = count + 1</td><td class="d">count を1増やす。これで、いつか条件が False になって止まる。</td></tr>
+    </table>
+    <div class="tip"><b>つまずきポイント：</b>くり返しの中で <b>条件をいつか False にする更新</b>（<code class="inl">count = count + 1</code> など）を忘れると、永遠に止まらない「<b>無限ループ</b>」になる。<br>
+    <code class="inl">for</code> は「回数が決まっている」くり返し、<code class="inl">while</code> は「条件しだい」のくり返し、と覚えると使い分けやすい。</div>
+  </div>
+
+  <!-- 5 break / continue -->
+  <div class="topic" id="t5">
+    <h2><span class="num">5</span>ループの中断・継続：break / continue</h2>
+    <div class="lead">くり返しの流れを変える2つの命令です。<b><code class="inl">break</code>＝もうやめる</b>、<b><code class="inl">continue</code>＝この回だけとばす</b>。</div>
+
+    <h3 class="sec">break（くり返しを途中でやめる）</h3>
+<pre>for i in range(1, 6):
+    if i == 3:
+        break
+    print(i)</pre>
+    <div class="outlabel">出力： <code>1</code> / <code>2</code>　（3になった瞬間にくり返しごと終了）</div>
+
+    <h3 class="sec">continue（その回だけとばして次へ）</h3>
+<pre>for i in range(1, 6):
+    if i == 3:
+        continue
+    print(i)</pre>
+    <div class="outlabel">出力： <code>1</code> / <code>2</code> / <code>4</code> / <code>5</code>　（3のときだけ print をとばす）</div>
+
+    <div class="tip"><b>つまずきポイント：</b>
+      <ul class="mini">
+        <li><code class="inl">break</code>：残りのくり返しを<b>全部やめて</b>ループの外へ出る。</li>
+        <li><code class="inl">continue</code>：<b>その1回だけ</b>スキップして、次のくり返しに進む（ループは続く）。</li>
+        <li>どちらも <code class="inl">while</code> でも使える。同じ形で「途中でやめる／とばす」ができる。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="margin:34px 0 14px;padding:10px 16px;background:#eef2f8;border-radius:10px;font-weight:800;color:#33404d;">
+    ここからは基礎の復習（レベル1〜3の内容だが、レベル4の問題にもよく出ます）
+  </div>
+
+  <!-- 6 for / range -->
+  <div class="topic" id="t6">
+    <h2><span class="num">6</span>for 文 と range</h2>
+    <div class="lead"><code class="inl">for</code> は「決まった回数」や「リストの要素の数だけ」くり返すときに使います。</div>
+    <h3 class="sec">正しい書き方</h3>
+<pre>fruits = ["りんご", "みかん", "ぶどう"]
+
+for fruit in fruits:      # リストの中身を1つずつ取り出す
+    print(fruit)
+
+for i in range(0, 3):     # 0, 1, 2 と数を1つずつ
+    print(i)</pre>
+    <div class="outlabel">出力： <code>りんご</code> / <code>みかん</code> / <code>ぶどう</code> / <code>0</code> / <code>1</code> / <code>2</code></div>
+    <table class="lines">
+      <tr><td class="c">for fruit in fruits:</td><td class="d">リストから1つずつ fruit に取り出してくり返す。</td></tr>
+      <tr><td class="c">for i in range(0, 3):</td><td class="d">i を 0,1,2 と変えながらくり返す（3回）。</td></tr>
+    </table>
+    <div class="tip"><b>つまずきポイント：</b><code class="inl">range(0, 3)</code> は <b>3 を含まない</b>（0,1,2 の3回）。<br>
+    「回数・要素の数だけ」なら <code class="inl">for</code>、「条件が続く間」なら <code class="inl">while</code>（→ 4番）と使い分ける。<code class="inl">for (条件):</code> という書き方は誤り。</div>
+  </div>
+
+  <!-- 7 if/elif/else -->
+  <div class="topic" id="t7">
+    <h2><span class="num">7</span>if / elif / else（条件分岐）</h2>
+    <div class="lead">条件によって処理を分けます。上から順に調べ、<b>最初に当てはまった1つだけ</b>を実行します。</div>
+    <h3 class="sec">正しい書き方</h3>
+<pre>score = 70
+
+if score >= 80:
+    print("合格")
+elif score >= 60:
+    print("あと少し")
+else:
+    print("不合格")</pre>
+    <div class="outlabel">出力： <code>あと少し</code></div>
+    <table class="lines">
+      <tr><td class="c">if score >= 80:</td><td class="d">80以上なら「合格」。今回は70なので当てはまらない。</td></tr>
+      <tr><td class="c">elif score >= 60:</td><td class="d">（ifが外れたら）60以上なら「あと少し」。70なのでここ。</td></tr>
+      <tr><td class="c">else:</td><td class="d">どれにも当てはまらないとき「不合格」。</td></tr>
+    </table>
+    <div class="tip"><b>つまずきポイント：</b>分岐は <code class="inl">if</code> →（必要なら）<code class="inl">elif</code>（何個でも）→ <code class="inl">else</code> の順。<code class="inl">else</code> に条件は付けない。上から順に見て、当てはまった時点で残りは調べない。</div>
+  </div>
+
+  <!-- 8 関数 -->
+  <div class="topic" id="t8">
+    <h2><span class="num">8</span>関数（def・引数・戻り値 return）</h2>
+    <div class="lead">よく使う処理に名前を付けてまとめたものが「関数」。<code class="inl">def</code> で作り、<code class="inl">return</code> で結果を返します。</div>
+    <h3 class="sec">正しい書き方</h3>
+<pre>def add(a, b):        # a, b は「引数」（受け取る値）
+    return a + b      # return で計算結果を返す
+
+answer = add(3, 5)    # 3 と 5 を渡す → 8 が返る
+print(answer)</pre>
+    <div class="outlabel">出力： <code>8</code></div>
+    <table class="lines">
+      <tr><td class="c">def add(a, b):</td><td class="d">関数 add を作る。() の中の a,b が受け取る値（引数）。</td></tr>
+      <tr><td class="c">    return a + b</td><td class="d">a+b の結果を「返す」。</td></tr>
+      <tr><td class="c">answer = add(3, 5)</td><td class="d">3と5を渡して呼ぶ。返ってきた8が answer に入る。</td></tr>
+    </table>
+    <div class="tip"><b>つまずきポイント：</b>
+      <ul class="mini">
+        <li>引数の数を合わせる（<code class="inl">def add(a, b)</code> なら呼ぶときも2つ渡す）。</li>
+        <li><code class="inl">return</code> を書かないと結果は返らない（<code class="inl">None</code> になる）。</li>
+        <li>関数の中で作った変数は、関数の外では使えない。</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 9 型変換 -->
+  <div class="topic" id="t9">
+    <h2><span class="num">9</span>型変換（str・int）と文字列の連結</h2>
+    <div class="lead">文字と数は種類がちがうので、混ぜるときは変換します。<code class="inl">str()</code>＝数を文字に、<code class="inl">int()</code>＝文字を数に。文字どうしは <code class="inl">+</code> でつなげます。</div>
+    <h3 class="sec">正しい書き方</h3>
+<pre>count = 3
+print("残り" + str(count) + "個")   # 数を文字にしてつなげる
+
+price = "500"
+total = int(price) + 100            # 文字を数にして計算
+print(total)</pre>
+    <div class="outlabel">出力： <code>残り3個</code> / <code>600</code></div>
+    <table class="lines">
+      <tr><td class="c">"残り" + str(count) + "個"</td><td class="d">count(数の3)を str() で文字"3"にしてから連結。→「残り3個」。</td></tr>
+      <tr><td class="c">int(price) + 100</td><td class="d">price(文字"500")を int() で数500にして計算。→ 600。</td></tr>
+    </table>
+    <div class="tip"><b>つまずきポイント：</b>文字と数は そのまま <code class="inl">+</code> できない（<code class="inl">"残り" + 3</code> はエラー）。<b>表示でつなげたいときは str()</b> で文字にそろえ、<b>計算したいときは int()</b> で数にそろえる。</div>
+  </div>
+
+  <!-- 10 in -->
+  <div class="topic" id="t10">
+    <h2><span class="num">10</span>リストに「含まれるか」を調べる（in）</h2>
+    <div class="lead"><code class="inl">値 in リスト</code> と書くと、その値がリストの中にあるかを <b>True / False</b> で調べられます。</div>
+    <h3 class="sec">正しい書き方</h3>
+<pre>menu = ["マグロ", "サーモン", "エビ"]
+
+if "サーモン" in menu:
+    print("あります")
+else:
+    print("ありません")</pre>
+    <div class="outlabel">出力： <code>あります</code></div>
+    <table class="lines">
+      <tr><td class="c">"サーモン" in menu</td><td class="d">menu の中に "サーモン" があるか調べる → ある(True)。</td></tr>
+      <tr><td class="c">if ... : / else:</td><td class="d">あれば「あります」、なければ「ありません」。</td></tr>
+    </table>
+    <div class="tip"><b>つまずきポイント：</b><code class="inl">if menu:</code> は「<b>リストが空でないか</b>」を見るだけ（中身が1つでもあれば、いつも True）。<br>「<b>特定の値があるか</b>」を調べたいときは、必ず <code class="inl">値 in リスト</code> を使う。</div>
+  </div>
+
+</div>
+</body>
+</html>

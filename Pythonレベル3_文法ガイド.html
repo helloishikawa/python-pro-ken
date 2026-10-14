@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python レベル3 文法ガイド（模擬試験の前に）</title>
+<style>
+  :root{
+    --bg:#f5f7fb; --card:#fff; --ink:#1f2933; --sub:#54616e; --line:#e0e5eb; --accent:#2f6bd6;
+    --code-bg:#2b2f3a; --code-ink:#f2f4f8;
+    --tip-bg:#fff8e8; --tip-line:#f0d99a; --tip-ink:#7a5b12;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;padding:26px 16px 70px;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI","Hiragino Kaku Gothic ProN","Meiryo",sans-serif;line-height:1.8;}
+  .wrap{max-width:820px;margin:0 auto;}
+  header.top h1{font-size:1.35rem;margin:0 0 6px;}
+  header.top p{margin:0 0 6px;color:var(--sub);font-size:.9rem;}
+  .toc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:16px 0 26px;}
+  .toc b{font-size:.9rem;}
+  .toc ol{margin:6px 0 0;padding-left:1.3em;}
+  .toc a{color:var(--accent);text-decoration:none;}
+  .topic{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:22px 20px;margin-bottom:24px;box-shadow:0 1px 3px rgba(30,40,60,.05);}
+  .topic h2{font-size:1.1rem;margin:0 0 4px;display:flex;align-items:center;gap:10px;}
+  .topic h2 .num{background:var(--accent);color:#fff;font-size:.8rem;font-weight:700;
+    width:1.7em;height:1.7em;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;flex:none;}
+  .lead{color:#33404d;margin:6px 0 14px;}
+  h3.sec{font-size:.92rem;margin:16px 0 8px;padding-left:9px;border-left:4px solid var(--accent);color:#2a3947;}
+  pre{margin:0 0 6px;background:var(--code-bg);color:var(--code-ink);padding:13px 15px;border-radius:9px;
+    overflow-x:auto;font-family:"Consolas","SFMono-Regular","Menlo",monospace;font-size:.88rem;line-height:1.55;}
+  .outlabel{font-size:.82rem;color:var(--sub);margin:0 0 14px;}
+  .outlabel code{background:#eef2f8;color:#2a3947;padding:1px 7px;border-radius:5px;
+    font-family:"Consolas","Menlo",monospace;}
+  code.inl{background:#2b2f3a;color:#f2f4f8;padding:1px 6px;border-radius:5px;
+    font-family:"Consolas","Menlo",monospace;font-size:.85em;}
+  table.lines{width:100%;border-collapse:collapse;margin:0 0 8px;font-size:.9rem;}
+  table.lines td{border-bottom:1px solid var(--line);padding:7px 8px;vertical-align:top;}
+  table.lines td.c{white-space:pre;font-family:"Consolas","Menlo",monospace;color:#0d2b52;background:#f2f6fc;
+    border-radius:4px;width:1%;}
+  table.lines td.d{color:var(--sub);}
+  .tip{background:var(--tip-bg);border:1px solid var(--tip-line);color:var(--tip-ink);border-radius:9px;
+    padding:11px 14px;font-size:.9rem;margin-top:12px;}
+  .tip b{font-weight:800;}
+  ul.mini{margin:6px 0 12px;padding-left:1.3em;}
+  ul.mini li{margin:3px 0;}
+  .typebox{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 8px;}
+  .typebox .t{flex:1;min-width:180px;border:1px solid var(--line);border-radius:9px;padding:10px 12px;background:#f9fbfe;}
+  .typebox .t b{display:block;color:var(--accent);}
+  @media print{body{background:#fff;}.topic{box-shadow:none;break-inside:avoid;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Python レベル3 文法ガイド</h1>
+    <p>模擬試験を解く前に、レベル3で出てくる文法を先に知っておくための教材です。</p>
+  </header>
+
+  <div class="toc">
+    <b>この教材で学ぶこと（レベル3の試験範囲）</b>
+    <ol>
+      <li><a href="#t1">変数の型（int・String・boolean）</a></li>
+      <li><a href="#t2">乱数（random）</a></li>
+      <li><a href="#t3">関数（def・引数・戻り値 return）</a></li>
+      <li><a href="#t4">for（配列の処理）</a></li>
+    </ol>
+  </div>
+
+  <!-- 1 変数の型 -->
+  <div class="topic" id="t1">
+    <h2><span class="num">1</span>変数の型（int・String・boolean）</h2>
+    <div class="lead">値には「型（しゅるい）」があります。レベル3では、この3つと、型が混ざったときの注意がよく問われます。</div>
+    <div class="typebox">
+      <div class="t"><b>int（整数）</b>100 や 0、-5 など。計算できる数。</div>
+      <div class="t"><b>String（文字列）</b>"こんにちは" のように <b>" で囲む</b>。文字。</div>
+      <div class="t"><b>boolean（真偽値）</b><code class="inl">True</code>（真）と <code class="inl">False</code>（偽）。条件の結果。</div>
+    </div>
+
+    <h3 class="sec">正しい書き方</h3>
+<pre>age = 15              # int（数）
+name = "たろう"       # String（文字列。" で囲む）
+is_member = True      # boolean（True か False）
+
+print(age)            # 15
+print(name)           # たろう
+print(is_member)      # True</pre>
+    <div class="outlabel">出力： <code>15</code> / <code>たろう</code> / <code>True</code></div>
+
+    <h3 class="sec">型が混ざるときの注意（レベル3の重要ポイント）</h3>
+<pre>score = 90
+
+# print("点数は" + score)          # ← エラー（文字 + 数はできない）
+print("点数は" + str(score) + "点")   # 数を文字にしてつなげる → 点数は90点
+
+a = "22"
+b = "10"
+print(a + b)          # "22"+"10" は文字の連結 → 2210
+print(int(a) + int(b))# 数にしてから計算 → 32</pre>
+    <div class="outlabel">出力： <code>点数は90点</code> / <code>2210</code> / <code>32</code></div>
+
+    <h3 class="sec">「文字の "True"／"False"」と「本当の True／False」は別物</h3>
+<pre>flag = "False"        # これは"文字列"（booleanのFalseではない）
+
+if flag:              # 中身のある文字列なので "真" 扱い
+    print("実行されます")
+else:
+    print("実行されません")</pre>
+    <div class="outlabel">出力： <code>実行されます</code></div>
+
+    <div class="tip"><b>つまずきポイント：</b>
+      <ul class="mini">
+        <li>文字と数は そのまま <code class="inl">+</code> できない。表示でつなぐなら <code class="inl">str()</code>、計算するなら <code class="inl">int()</code>。</li>
+        <li>if の条件では、<b>中身のある文字列や 0 以外の数は「真(True)扱い」</b>、<b>空文字 <code class="inl">""</code> や <code class="inl">0</code>、<code class="inl">False</code> は「偽(False)扱い」</b>。</li>
+        <li><code class="inl">"True"</code>・<code class="inl">"False"</code>（" で囲む）は<b>文字列</b>。中身があるので if は<b>成立する</b>。本当の真偽値は クォート無しの <code class="inl">True</code>／<code class="inl">False</code>。</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 2 乱数 -->
+  <div class="topic" id="t2">
+    <h2><span class="num">2</span>乱数（random）</h2>
+    <div class="lead">ランダムな値を作る機能です。検定では次の2つがセットでよく出ます（問題文にも説明が付きます）。</div>
+    <div class="typebox">
+      <div class="t"><b>random.random()</b>0以上1未満のランダムな小数（例：0.73）。</div>
+      <div class="t"><b>math.floor(num)</b>小数点以下を切り捨てて整数にする（例：5.9→5）。</div>
+    </div>
+
+    <h3 class="sec">正しい書き方（1〜6 のランダムな整数＝サイコロ）</h3>
+<pre>import random
+import math
+
+dice = math.floor(random.random() * 6) + 1
+print(dice)</pre>
+    <div class="outlabel">出力： <code>1〜6 のどれか</code></div>
+    <table class="lines">
+      <tr><td class="c">random.random()</td><td class="d">0以上1未満の小数（例 0.73）。</td></tr>
+      <tr><td class="c">... * 6</td><td class="d">0以上6未満（0〜5.99…）にひろげる。</td></tr>
+      <tr><td class="c">math.floor(...)</td><td class="d">切り捨てて 0〜5 の整数にする。</td></tr>
+      <tr><td class="c">... + 1</td><td class="d">1〜6 にずらす。</td></tr>
+    </table>
+    <div class="tip"><b>つまずきポイント：</b>
+      <ul class="mini">
+        <li>「1〜N のランダムな整数」は <code class="inl">math.floor(random.random() * N) + 1</code> が基本形。</li>
+        <li>かける順番に注意。<code class="inl">math.floor(random.random()) * 6</code> は、先に切り捨てて 0、×6 でも <b>いつも 0</b> になってしまう。<code class="inl">* 6</code> は floor の<b>中</b>に入れる。</li>
+        <li><code class="inl">random.random()</code> だけでは 0〜0.99… の小数。整数にするには <code class="inl">* N</code> と <code class="inl">math.floor</code> が必要。</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 3 関数 -->
+  <div class="topic" id="t3">
+    <h2><span class="num">3</span>関数（def・引数・戻り値 return）</h2>
+    <div class="lead">よく使う処理に名前を付けてまとめたものが「関数」。<code class="inl">def</code> で作り、<code class="inl">return</code> で結果を返します。レベル3で特に多い分野です。</div>
+
+    <h3 class="sec">正しい書き方</h3>
+<pre>def add_tax(price):        # price は「引数」（受け取る値）
+    return price + 100     # return で結果を返す
+
+total = add_tax(500)       # 500 を渡す → 600 が返る
+print(total)</pre>
+    <div class="outlabel">出力： <code>600</code></div>
+    <table class="lines">
+      <tr><td class="c">def add_tax(price):</td><td class="d">関数 add_tax を作る。() の中の price が受け取る値（引数）。</td></tr>
+      <tr><td class="c">    return price + 100</td><td class="d">price+100 の結果を「返す」。</td></tr>
+      <tr><td class="c">total = add_tax(500)</td><td class="d">500 を渡して呼ぶ。返ってきた 600 が total に入る。</td></tr>
+    </table>
+    <div class="tip"><b>つまずきポイント：</b>
+      <ul class="mini">
+        <li>関数は「作る（<code class="inl">def</code>）」だけでは動かない。「<b>呼ぶ（<code class="inl">名前()</code>）</b>」で初めて実行される。</li>
+        <li>引数の数を合わせる（<code class="inl">def add_tax(price)</code> なら1つ渡す）。渡し忘れ・渡しすぎはエラー。</li>
+        <li><code class="inl">return</code> を書かないと結果は返らない（<code class="inl">None</code> になる）。</li>
+        <li>関数の中で作った変数は<b>外では使えない</b>。外で使いたいなら <code class="inl">return</code> で返す、または <code class="inl">print</code> を<b>関数の中</b>で行う。</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 4 for -->
+  <div class="topic" id="t4">
+    <h2><span class="num">4</span>for（配列の処理）</h2>
+    <div class="lead">複数の値をまとめた「リスト（配列）」を、<code class="inl">for</code> で1つずつ処理します。合計や個数を求める問題がよく出ます。</div>
+
+    <h3 class="sec">正しい書き方（リストの合計）</h3>
+<pre>prices = [200, 500, 300]
+total = 0
+
+for price in prices:        # 1つずつ price に取り出す
+    total = total + price    # 合計に足していく
+
+print(total)</pre>
+    <div class="outlabel">出力： <code>1000</code></div>
+    <table class="lines">
+      <tr><td class="c">prices = [200, 500, 300]</td><td class="d">3つの数が入ったリスト。</td></tr>
+      <tr><td class="c">total = 0</td><td class="d">合計を 0 から始める。</td></tr>
+      <tr><td class="c">for price in prices:</td><td class="d">リストから1つずつ price に取り出してくり返す。</td></tr>
+      <tr><td class="c">    total = total + price</td><td class="d">取り出した値を合計に足す。200+500+300＝1000。</td></tr>
+    </table>
+
+    <h3 class="sec">番号で取り出す・個数を数える（参照と len）</h3>
+<pre>fruits = ["りんご", "みかん", "ぶどう"]
+
+print(fruits[0])            # 番号で参照（番号は0から）→ りんご
+print(len(fruits))          # 個数 → 3
+
+for i in range(0, 3):       # 0,1,2 と数を1つずつ
+    print(fruits[i])        # 番号を使って順番に取り出す</pre>
+    <div class="outlabel">出力： <code>りんご</code> / <code>3</code> / <code>りんご</code> / <code>みかん</code> / <code>ぶどう</code></div>
+    <table class="lines">
+      <tr><td class="c">fruits[0]</td><td class="d">番号で1つ取り出す。番号は <b>0から</b>（0番目＝りんご）。</td></tr>
+      <tr><td class="c">len(fruits)</td><td class="d">リストの個数（要素の数）を返す。→ 3。</td></tr>
+      <tr><td class="c">for i in range(0, 3):</td><td class="d">i を 0,1,2 と変えながら、番号で順番に取り出す。</td></tr>
+    </table>
+    <div class="tip"><b>つまずきポイント：</b>
+      <ul class="mini">
+        <li>番号は <b>0から</b>。3個のリストの番号は 0・1・2。存在しない番号（例 <code class="inl">fruits[3]</code>）はエラー。</li>
+        <li><code class="inl">range(0, 3)</code> は <b>3 を含まない</b>（0,1,2 の3回）。</li>
+        <li>合計は <code class="inl">total = 0</code> から始めて、for の中で足す。文字の数字リスト（例 <code class="inl">["80","90"]</code>）を合計するときは <code class="inl">int()</code> で数にしてから足す。</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

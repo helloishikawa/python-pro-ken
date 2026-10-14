@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python レベル3 練習問題（2023年11月）</title>
+<style>
+  :root {
+    --bg:#f4f6fb; --card:#fff; --ink:#1f2933; --sub:#52606d; --line:#dfe3e8; --accent:#3b6ef5;
+    --ok-bg:#e6f6ec; --ok-ink:#1a7f45; --ok-line:#7bcf9a;
+    --ng-bg:#fdecec; --ng-ink:#c0392b; --ng-line:#f0a9a1;
+    --code-bg:#2b2f3a; --code-ink:#f2f4f8;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:20px 14px 60px; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI","Hiragino Kaku Gothic ProN","Meiryo",sans-serif; line-height:1.7; }
+  .wrap { max-width:820px; margin:0 auto; }
+  header h1 { font-size:1.2rem; margin:0 0 4px; }
+  header p { margin:0 0 14px; color:var(--sub); font-size:.82rem; }
+  .progress-row { display:flex; align-items:center; gap:12px; margin-bottom:16px; position:sticky; top:0;
+    background:var(--bg); padding:8px 0; z-index:5; }
+  .progress-text { font-size:.85rem; font-weight:700; color:var(--sub); white-space:nowrap; }
+  .bar { flex:1; height:9px; background:#e3e8f0; border-radius:999px; overflow:hidden; }
+  .bar > div { height:100%; width:0; background:var(--accent); border-radius:999px; transition:width .25s; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:20px 18px; box-shadow:0 1px 3px rgba(30,40,60,.05); }
+  .qhead { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .qno { background:var(--accent); color:#fff; font-size:.78rem; font-weight:700; padding:2px 10px; border-radius:999px; }
+  .qtype { background:#eef1f6; color:var(--sub); font-size:.72rem; font-weight:700; padding:2px 8px; border-radius:999px; }
+  .qtext { font-weight:700; margin:0 0 8px; white-space:pre-wrap; }
+  .qexample { background:#f7f9fc; border:1px dashed var(--line); border-radius:8px; padding:8px 12px;
+    margin:6px 0 14px; font-size:.9rem; color:#37414d; white-space:pre-wrap; }
+  .qnote { font-size:.8rem; color:var(--sub); margin:2px 0 12px; white-space:pre-wrap; }
+  .choice { display:block; width:100%; text-align:left; cursor:pointer; background:#fff;
+    border:1.5px solid var(--line); border-radius:10px; padding:10px 12px; margin-bottom:6px;
+    font:inherit; color:inherit; transition:border-color .15s,background .15s; }
+  .choice:hover:not(:disabled) { border-color:var(--accent); }
+  .choice .label { font-weight:700; margin-right:8px; color:var(--sub); }
+  pre { margin:6px 0 0; background:var(--code-bg); color:var(--code-ink); padding:11px 13px;
+    border-radius:8px; overflow-x:auto; font-family:"Consolas","SFMono-Regular","Menlo",monospace;
+    font-size:.86rem; line-height:1.5; }
+  pre .cline { display:block; white-space:pre; }
+  pre .cline:empty::after { content:"\00a0"; }
+  pre .cline.bad { background:rgba(224,80,70,.34); border-radius:3px; box-shadow:0 0 0 1px rgba(224,80,70,.5) inset; }
+  pre .cline.bad .mk { color:#ffc7c2; font-size:.82em; }
+  .choice.correct { background:var(--ok-bg); border-color:var(--ok-line); }
+  .choice.wrong { background:var(--ng-bg); border-color:var(--ng-line); }
+  .choice:disabled { cursor:default; }
+  .why { display:none; margin:5px 2px 12px; padding:9px 12px; border-radius:8px;
+    font-size:.88rem; border:1px solid var(--line); }
+  .why.show { display:block; }
+  .why.ok { background:var(--ok-bg); border-color:var(--ok-line); color:#155a33; }
+  .why.ng { background:var(--ng-bg); border-color:var(--ng-line); color:#8f2c20; }
+  .why b { font-weight:800; }
+  .why code, .line code, .qtext code, .qnote code { background:#2b2f3a; color:#f2f4f8; padding:1px 6px; border-radius:5px;
+    font-family:"Consolas","Menlo",monospace; font-size:.85em; }
+  .result { margin-top:6px; display:none; }
+  .result.show { display:block; }
+  .badge { font-weight:800; font-size:1.05rem; margin-bottom:10px; }
+  .badge.ok { color:var(--ok-ink); } .badge.ng { color:var(--ng-ink); }
+  .explain { border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+  .explain .head { background:#eef1f6; padding:8px 12px; font-weight:700; font-size:.88rem; }
+  .lines { margin:0; padding:6px 0; }
+  .line { display:flex; gap:10px; padding:6px 12px; font-size:.9rem; flex-wrap:wrap; }
+  .line code { white-space:pre; padding:2px 7px; }
+  .line span { color:var(--sub); flex:1; min-width:180px; }
+  .postnote { margin-top:12px; background:#fff7e6; border:1px solid #f0d79a; color:#8a6316;
+    border-radius:8px; padding:9px 12px; font-size:.83rem; }
+  .reveal-btn { font:inherit; font-weight:700; padding:11px 22px; border-radius:10px; cursor:pointer;
+    border:1.5px solid var(--accent); background:var(--accent); color:#fff; margin-top:6px; }
+  .nav { display:flex; justify-content:space-between; margin-top:16px; gap:10px; }
+  button.nav-btn { font:inherit; font-weight:700; padding:11px 20px; border-radius:10px; cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; color:var(--sub); }
+  button.nav-btn.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+  button.nav-btn:disabled { opacity:.4; cursor:default; }
+  .final { text-align:center; padding:36px 18px; }
+  .final .score { font-size:2.3rem; font-weight:800; color:var(--accent); margin:10px 0; }
+  .final .msg { color:var(--sub); margin-bottom:22px; }
+  .jump { margin-top:10px; font-size:.8rem; color:var(--sub); text-align:center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>プログラミング能力検定 Python レベル3 練習問題（2023年11月）</h1>
+    <p>2023年11月検定 過去問題（全26問）／ 選択肢を選ぶと ◯✕・各選択肢の理由・正解コードの1行解説が出ます</p>
+  </header>
+
+  <div class="progress-row">
+    <span class="progress-text" id="ptext">1 / 26 問</span>
+    <div class="bar"><div id="pbar"></div></div>
+  </div>
+
+  <div id="stage"></div>
+
+  <div class="nav" id="nav">
+    <button class="nav-btn" id="backBtn" onclick="goBack()">← 戻る</button>
+    <button class="nav-btn primary" id="nextBtn" onclick="goNext()" disabled>次へ →</button>
+  </div>
+  <div class="jump">問題番号をクリックで移動：<span id="jumpNums"></span></div>
+</div>
+
+<script>
+const LABELS = ['①','②','③','④'];
+
+const QUIZ = [
+/* 1 */ {
+  q:'「おはようございます」と出力されるプログラムを選びなさい。',
+  choices:[
+    {code:'if True:\n    print("おはようございます")',correct:true,
+     why:'<b>◯ 正解。</b> 条件が<code>True</code>なので、中の print が実行される。'},
+    {code:'if False:\n    print("おはようございます")',correct:false,
+     why:'<b>✕</b> 条件が<code>False</code>なので中は実行されず、何も表示されない。'}
+  ],
+  explainTitle:'正解①のコードを1行ずつ',
+  explainLines:[
+    ['if True:','条件が True（真）なので必ず成立。'],
+    ['    print("おはようございます")','「おはようございます」と表示。']
+  ]
+},
+/* 2 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  example:'午後1時からサッカーの試合があります\nチケットは完売しました\nスタジアムはAスタジアムです',
+  choices:[
+    {code:'announce():\n    print("午後1時からサッカーの試合があります")\n    print("チケットは完売しました")\n\nannounce()\nif False:\n    print("スタジアムはAスタジアムです")\nelse:\n    print("スタジアムはBスタジアムです")',correct:false,
+     why:'<b>✕</b> <code>def</code>が無く<b>構文エラー</b>。さらに if False で B スタジアムになる。'},
+    {code:'def announce():\n    print("午後1時からサッカーの試合があります")\n    print("チケットは完売しました")\n\nannounce()\nif True:\n    print("スタジアムはAスタジアムです")\nelse:\n    print("スタジアムはBスタジアムです")',correct:true,
+     why:'<b>◯ 正解。</b> 関数で2行表示し、if True で「Aスタジアムです」。'},
+    {code:'def announce():\n    print("午後1時からサッカーの試合があります")\n    print("チケットは完売しました")\n\nannounce()\nif False:\n    print("スタジアムはAスタジアムです")\nelse:\n    print("スタジアムはBスタジアムです")',correct:false,
+     why:'<b>✕</b> if False なので else 側の「Bスタジアムです」になる。'},
+    {code:'announce():\n    print("午後1時からサッカーの試合があります")\n    print("チケットは完売しました")\n\nannounce()\nif True:\n    print("スタジアムはAスタジアムです")\nelse:\n    print("スタジアムはBスタジアムです")',correct:false,
+     why:'<b>✕</b> <code>def</code>が無く<b>構文エラー</b>。'}
+  ],
+  explainTitle:'正解②のコードを1行ずつ',
+  explainLines:[
+    ['def announce():','お知らせを表示する関数を作る。'],
+    ['    print("午後1時から...")','1行目と2行目を表示する。'],
+    ['announce()','関数を呼んで2行を表示。'],
+    ['if True:','必ず成立。'],
+    ['    print("スタジアムはAスタジアムです")','3行目を表示。']
+  ]
+},
+/* 3 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  example:'明日の天気をお知らせします\n7月10日の天気は雨です',
+  choices:[
+    {code:'def forecast_weather(date, weather):\n    print("明日の天気をお知らせします")\n    print(date + "の天気は" + weather + "です")\n\ntomorrow_date = "7月10日"\nweather = "雨"\n\nforecast_weather()',correct:false,
+     why:'<b>✕</b> 引数を2つ受け取る関数なのに、<code>forecast_weather()</code>と何も渡していない → <b>エラー</b>。'},
+    {code:'def forecast_weather():\n    print("明日の天気をお知らせします")\n    print(date + "の天気は" + weather + "です")\n\ntomorrow_date = "7月10日"\nweather = "雨"\n\nforecast_weather(tomorrow_date, weather)',correct:false,
+     why:'<b>✕</b> <code>def forecast_weather():</code>に引数が無いのに2つ渡している → <b>エラー</b>。'},
+    {code:'def forecast_weather(date, weather):\n    print("明日の天気をお知らせします")\n    print(date + "の天気は" + weather + "です")\n\ntomorrow_date = "7月10日"\nweather = "雨"\n\nforecast_weather(tomorrow_date, weather)',correct:true,
+     why:'<b>◯ 正解。</b> 引数2つを受け取り、2つ渡して呼んでいる。'}
+  ],
+  explainTitle:'正解③のコードを1行ずつ',
+  explainLines:[
+    ['def forecast_weather(date, weather):','日付と天気を受け取る関数。'],
+    ['    print(date + "の天気は" + weather + "です")','「7月10日の天気は雨です」。'],
+    ['forecast_weather(tomorrow_date, weather)','"7月10日" と "雨" を渡して実行。']
+  ]
+},
+/* 4 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  example:'振り込め詐欺の可能性があります\n今一度確認をお願いします\n500000円を振り込みました',
+  choices:[
+    {code:'def warning():\n    print("振り込め詐欺の可能性があります")\n    print("今一度確認をお願いします")\n\ndef operate_atm(operation_type, money_amount):\n    if operation_type == "振り込み":\n        warning()\n        print(str(money_amount) + "円を振り込みました")\n    elif operation_type == "引き出し":\n        print(str(money_amount) + "円を引き出しました")\n    elif operation_type == "預け入れ":\n        print(str(money_amount) + "円を預け入れました")\n\noperate_atm("振り込み", 500000)',correct:true,
+     why:'<b>◯ 正解。</b> 振り込みのとき<code>warning()</code>で注意の2行を出してから金額を表示。'},
+    {code:'def warning():\n    print("振り込め詐欺の可能性があります")\n    print("今一度確認をお願いします")\n\ndef operate_atm(operation_type, money_amount):\n    if operation_type == "振り込み":\n        print(str(money_amount) + "円を振り込みました")\n    elif operation_type == "引き出し":\n        print(str(money_amount) + "円を引き出しました")\n    elif operation_type == "預け入れ":\n        print(str(money_amount) + "円を預け入れました")\n\noperate_atm()',correct:false,
+     why:'<b>✕</b> <code>operate_atm()</code>と引数を渡していない → <b>エラー</b>。warning() も呼んでいない。'},
+    {code:'def warning():\n    print("振り込め詐欺の可能性があります")\n    print("今一度確認をお願いします")\n\ndef operate_atm(operation_type, money_amount):\n    if operation_type == "振り込み":\n        warning()\n        print(str(money_amount) + "円を振り込みました")\n    elif operation_type == "引き出し":\n        print(str(money_amount) + "円を引き出しました")\n    elif operation_type == "預け入れ":\n        print(str(money_amount) + "円を預け入れました")\n\noperate_atm()',correct:false,
+     why:'<b>✕</b> 中身は正しいが、<code>operate_atm()</code>で引数を渡していない → <b>エラー</b>。'},
+    {code:'def warning():\n    print("振り込め詐欺の可能性があります")\n    print("今一度確認をお願いします")\n\ndef operate_atm(operation_type, money_amount):\n    if operation_type == "振り込み":\n        print(str(money_amount) + "円を振り込みました")\n    elif operation_type == "引き出し":\n        print(str(money_amount) + "円を引き出しました")\n    elif operation_type == "預け入れ":\n        print(str(money_amount) + "円を預け入れました")\n\noperate_atm("振り込み", 500000)',correct:false,
+     why:'<b>✕</b> <code>warning()</code>を呼んでいないので、注意の2行が出ない。'}
+  ],
+  explainTitle:'正解①のコードを1行ずつ',
+  explainLines:[
+    ['def warning():','注意メッセージ2行を表示する関数。'],
+    ['def operate_atm(operation_type, money_amount):','操作の種類と金額を受け取る関数。'],
+    ['    if operation_type == "振り込み":','振り込みなら…'],
+    ['        warning()','先に注意を表示（関数の中から別の関数を呼べる）。'],
+    ['        print(str(money_amount) + "円を振り込みました")','「500000円を振り込みました」。'],
+    ['operate_atm("振り込み", 500000)','振り込み・500000円を渡して実行。']
+  ]
+},
+/* 5 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  note:'※ <code>math.floor(num)</code> は num 以下の最大の整数を取得するコードである',
+  example:'チップを払います\nチップは受けたサービスに対して払います\n以下の金額を支払います\n24ドル',
+  choices:[
+    {code:'import math\n\ndef calculate_amount(price, tip_percentage):\n    total_amount = price + price * (tip_percentage / 100)\n\n    return total_amount\n\ndef introduce_tip():\n    print("チップを払います")\n    print("チップは受けたサービスに対して払います")\n\nmeal_bill = 20\n\nintroduce_tip()\nprint("以下の金額を支払います")\nprint(str(math.floor(calculate_amount(meal_bill, 20))) + "ドル");',correct:true,
+     why:'<b>◯ 正解。</b> 20 + 20×0.2 = 24.0 を返し、floor で 24。2つの関数とも def あり。'},
+    {code:'import math\n\ndef calculate_amount(price, tip_percentage):\n    total_amount = price + price * (tip_percentage / 100)\n\n    return total_amount\n\nintroduce_tip():\n    print("チップを払います")\n    print("チップは受けたサービスに対して払います")\n\nmeal_bill = 20\n\nintroduce_tip()\nprint("以下の金額を支払います")\nprint(str(math.floor(calculate_amount(meal_bill, 20))) + "ドル");',correct:false,
+     why:'<b>✕</b> <code>introduce_tip():</code>に<code>def</code>が無く<b>構文エラー</b>。'},
+    {code:'import math\n\ndef calculate_amount(price, tip_percentage):\n    total_amount = price + price * (tip_percentage / 100)\n\n    total_amount\n\nintroduce_tip():\n    print("チップを払います")\n    print("チップは受けたサービスに対して払います")\n\nmeal_bill = 20\n\nintroduce_tip()\nprint("以下の金額を支払います")\nprint(str(math.floor(calculate_amount(meal_bill, 20))) + "ドル");',correct:false,
+     why:'<b>✕</b> <code>def</code>が無く構文エラー。さらに<code>return</code>も無い。'},
+    {code:'import math\n\ndef calculate_amount(price, tip_percentage):\n    total_amount = price + price * (tip_percentage / 100)\n\n    total_amount\n\ndef introduce_tip():\n    print("チップを払います")\n    print("チップは受けたサービスに対して払います")\n\nmeal_bill = 20\n\nintroduce_tip()\nprint("以下の金額を支払います")\nprint(str(math.floor(calculate_amount(meal_bill, 20))) + "ドル");',correct:false,
+     why:'<b>✕</b> <code>return</code>が無く None が返り、<code>math.floor(None)</code>で<b>エラー</b>。'}
+  ],
+  explainTitle:'正解①のコードを1行ずつ',
+  explainLines:[
+    ['def calculate_amount(price, tip_percentage):','料金とチップ率を受け取る関数。'],
+    ['    total_amount = price + price * (tip_percentage / 100)','20 + 20×(20÷100) = 24.0。'],
+    ['    return total_amount','24.0 を返す。'],
+    ['introduce_tip()','説明の2行を表示。'],
+    ['print(str(math.floor(calculate_amount(meal_bill, 20))) + "ドル");','floor で 24 にして「24ドル」。行末の ; は付いていても動く。']
+  ]
+},
+/* 6 */ {
+  q:'「30」と出力されるプログラムを選びなさい。',
+  choices:[
+    {code:'stock = "20"\n\nif True:\n    stock = stock + 10\nelse:\n    stock = stock - 10\n\nprint(stock)',correct:false,
+     why:'<b>✕</b> "20" は文字列なので、10（数）と足せず<b>エラー</b>。'},
+    {code:'stock = 20\n\nif False:\n    stock = stock + 10\nelse:\n    stock = stock - 10\n\nprint(stock)',correct:false,
+     why:'<b>✕</b> if False なので else で 20-10 = 10 になる。'},
+    {code:'stock = "20"\n\nif False:\n    stock = stock + 10\nelse:\n    stock = stock - 10\n\nprint(stock)',correct:false,
+     why:'<b>✕</b> 文字列 "20" から 10 は引けず<b>エラー</b>。'},
+    {code:'stock = 20\n\nif True:\n    stock = stock + 10\nelse:\n    stock = stock - 10\n\nprint(stock)',correct:true,
+     why:'<b>◯ 正解。</b> 数の 20 に if True で 10 を足して 30。'}
+  ],
+  explainTitle:'正解④のコードを1行ずつ',
+  explainLines:[
+    ['stock = 20','在庫は数の20。'],
+    ['if True:','必ず成立。'],
+    ['    stock = stock + 10','20+10=30。'],
+    ['print(stock)','30を表示。']
+  ]
+},
+/* 7 */ {
+  q:'「お会計は650円になります」と出力されるプログラムを選びなさい。',
+  choices:[
+    {code:'calculate_price():\n    dessert_price = "500"\n    drink_price = "150"\n\n    print("お会計は" + str(dessert_price + drink_price) + "円になります")\n\ncalculate_price()',correct:false,
+     why:'<b>✕</b> <code>def</code>が無く<b>構文エラー</b>。値段も文字列。'},
+    {code:'def calculate_price():\n    dessert_price = "500"\n    drink_price = "150"\n\n    print("お会計は" + str(dessert_price + drink_price) + "円になります")\n\ncalculate_price()',correct:false,
+     why:'<b>✕</b> "500"+"150" は文字のつなげで「500150円」になってしまう。'},
+    {code:'def calculate_price():\n    dessert_price = 500\n    drink_price = 150\n\n    print("お会計は" + str(dessert_price + drink_price) + "円になります")\n\ncalculate_price()',correct:true,
+     why:'<b>◯ 正解。</b> 数どうしなので 500+150=650。'},
+    {code:'calculate_price():\n    dessert_price = 500\n    drink_price = 150\n\n    print("お会計は" + str(dessert_price + drink_price) + "円になります")\n\ncalculate_price()',correct:false,
+     why:'<b>✕</b> 計算は正しいが<code>def</code>が無く<b>構文エラー</b>。'}
+  ],
+  explainTitle:'正解③のコードを1行ずつ',
+  explainLines:[
+    ['def calculate_price():','会計を表示する関数。'],
+    ['    dessert_price = 500','数の500。'],
+    ['    drink_price = 150','数の150。'],
+    ['    print("お会計は" + str(dessert_price + drink_price) + "円になります")','先に 500+150=650 を計算し、str() で文字にして表示。'],
+    ['calculate_price()','関数を呼ぶ。']
+  ]
+},
+/* 8 */ {
+  q:'「足し算の結果は5」と出力されるプログラムを選びなさい。',
+  choices:[
+    {code:'def add():\n    result = num1 + num2\n\n    return result\n\nprint("足し算の結果は" + str(add(1, 4)))',correct:false,
+     why:'<b>✕</b> <code>def add():</code>に引数が無いのに2つ渡している → <b>エラー</b>。'},
+    {code:'def add(num1, num2):\n    result = num1 + num2\n\n    return result\n\nprint("足し算の結果は" + str(add(1, 4)))',correct:true,
+     why:'<b>◯ 正解。</b> 1 と 4（数）を渡して 5 を返す。'},
+    {code:'def add(num1, num2):\n    result = num1 + num2\n\n    return result\n\nprint("足し算の結果は" + str(add("1", "4")))',correct:false,
+     why:'<b>✕</b> "1"+"4" は文字のつなげで「14」になる。'},
+    {code:'def add():\n    result = num1 + num2\n\n    return result\n\nprint("足し算の結果は" + str(add("1", "4")))',correct:false,
+     why:'<b>✕</b> 引数が無いのに渡している（エラー）。値も文字列。'}
+  ],
+  explainTitle:'正解②のコードを1行ずつ',
+  explainLines:[
+    ['def add(num1, num2):','2つの数を受け取る関数。'],
+    ['    result = num1 + num2','足し算。'],
+    ['    return result','結果を返す。'],
+    ['print("足し算の結果は" + str(add(1, 4)))','1+4=5 を受け取り「足し算の結果は5」。']
+  ]
+},
+/* 9 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  example:'投票数は山が3票、海が2票でした\n今年のキャンプ先は山に決定しました',
+  choices:[
+    {code:'def decide_campsite(votes):\n    mountain_num = 0\n    sea_num = 0\n\n    for vote in votes:\n        if vote == "山":\n            mountain_num = mountain_num + 1\n        else:\n            sea_num = sea_num + 1\n\n    print("投票数は山が" + str(mountain_num) + "票、海が" + str(sea_num) + "票でした")\n    if mountain_num > sea_num:\n        "山"\n    else:\n        "海"\n\nvote_list = ["山", "山", "海", "山", "海"]\n\nprint("今年のキャンプ先は" + decide_campsite(vote_list) + "に決定しました")',correct:false,
+     why:'<b>✕</b> "山"/"海" に<code>return</code>が無いので None が返り、文字とつなげて<b>エラー</b>。'},
+    {code:'def decide_campsite(votes):\n    mountain_num = 0\n    sea_num = 0\n\n    for vote in votes:\n        if vote == "山":\n            mountain_num = mountain_num + 1\n        else:\n            sea_num = sea_num + 1\n\n    print("投票数は山が" + str(mountain_num) + "票、海が" + str(sea_num) + "票でした")\n    if mountain_num > sea_num:\n        return "山"\n    else:\n        return "海"\n\nvote_list = ["山", "山", "海", "山", "海"]\n\nprint("今年のキャンプ先は" + decide_campsite(vote_list) + "に決定しました")',correct:true,
+     why:'<b>◯ 正解。</b> 数で数えて山3・海2、多い方の "山" を return している。'},
+    {code:'def decide_campsite(votes):\n    mountain_num = "0"\n    sea_num = "0"\n\n    for vote in votes:\n        if vote == "山":\n            mountain_num = mountain_num + 1\n        else:\n            sea_num = sea_num + 1\n\n    print("投票数は山が" + str(mountain_num) + "票、海が" + str(sea_num) + "票でした")\n    if mountain_num > sea_num:\n        "山"\n    else:\n        "海"\n\nvote_list = ["山", "山", "海", "山", "海"]\n\nprint("今年のキャンプ先は" + decide_campsite(vote_list) + "に決定しました")',correct:false,
+     why:'<b>✕</b> 数える変数が文字列 "0" なので "0"+1 で<b>エラー</b>。return も無い。'},
+    {code:'def decide_campsite(votes):\n    mountain_num = "0"\n    sea_num = "0"\n\n    for vote in votes:\n        if vote == "山":\n            mountain_num = mountain_num + 1\n        else:\n            sea_num = sea_num + 1\n\n    print("投票数は山が" + str(mountain_num) + "票、海が" + str(sea_num) + "票でした")\n    if mountain_num > sea_num:\n        return "山"\n    else:\n        return "海"\n\nvote_list = ["山", "山", "海", "山", "海"]\n\nprint("今年のキャンプ先は" + decide_campsite(vote_list) + "に決定しました")',correct:false,
+     why:'<b>✕</b> return はあるが、"0"+1 で<b>エラー</b>。'}
+  ],
+  explainTitle:'正解②のコードを1行ずつ',
+  explainLines:[
+    ['def decide_campsite(votes):','投票リストを受け取る関数。'],
+    ['    mountain_num = 0','山の票数（数）を0から。'],
+    ['    for vote in votes:','1票ずつ調べる。'],
+    ['        if vote == "山":','山なら山を+1、それ以外は海を+1。'],
+    ['    print("投票数は山が" + ...)','「投票数は山が3票、海が2票でした」。'],
+    ['    if mountain_num > sea_num:','山の方が多いので…'],
+    ['        return "山"','"山" を返す。'],
+    ['print("今年のキャンプ先は" + decide_campsite(vote_list) + ...)','「今年のキャンプ先は山に決定しました」。']
+  ]
+},
+/* 10 */ {
+  q:'「180km/hは50m/sです」と出力されるプログラムを選びなさい。',
+  note:'※ <code>math.floor(num)</code> は num 以下の最大の整数を取得するコードである',
+  choices:[
+    {code:'import math\n\ndef convert_speed():\n    speed = 180\n\nprint(str(speed) + "km/hは" + str(math.floor((speed * 1000) / 3600)) + "m/sです")',correct:false,
+     why:'<b>✕</b> print が関数の外で、speed は関数の中だけの変数 → <b>エラー</b>。関数も呼んでいない。'},
+    {code:'import math\n\ndef convert_speed():\n    speed = 180\n\n    print(str(speed) + "km/hは" + str(math.floor((speed * 1000) / 3600)) + "m/sです")',correct:false,
+     why:'<b>✕</b> 関数を作っただけで<code>convert_speed()</code>を呼んでいないので、何も表示されない。'},
+    {code:'import math\n\ndef convert_speed():\n    speed = 180\n\n    print(str(speed) + "km/hは" + str(math.floor((speed * 1000) / 3600)) + "m/sです")\n\nconvert_speed()',correct:true,
+     why:'<b>◯ 正解。</b> 関数の中で計算・表示し、最後に呼んでいる。180×1000÷3600=50。'},
+    {code:'import math\n\ndef convert_speed():\n    speed = 180\n\nconvert_speed()\nprint(str(speed) + "km/hは" + str(math.floor((speed * 1000) / 3600)) + "m/sです")',correct:false,
+     why:'<b>✕</b> 呼んではいるが、print が関数の外で speed が無い → <b>エラー</b>。'}
+  ],
+  explainTitle:'正解③のコードを1行ずつ',
+  explainLines:[
+    ['def convert_speed():','速さを変換して表示する関数。'],
+    ['    speed = 180','時速180km。'],
+    ['    print(... math.floor((speed * 1000) / 3600) ...)','180×1000÷3600 = 50.0 → floor で 50。'],
+    ['convert_speed()','関数を呼んで「180km/hは50m/sです」。']
+  ]
+},
+/* 11 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  note:'※ <code>len(arr)</code> は配列の長さの値を返すコードである',
+  example:'コロッケ 2個:400円\nカニ 3個:3000円\nアイスクリーム 1個:300円',
+  choices:[
+    {code:'def output_subtotal(item, price, num):\n    result = price * num\n    message = item + " " + str(num) + "個:" + str(result) + "円"\n\n    message\n\ndef accounting(purchased_item_list, price_list, quantity_list):\n    total_price = 0\n    output_message = ""\n\n    for i in range(0, len(purchased_item_list)):\n        output_message = output_subtotal(purchased_item_list[i], price_list[i], quantity_list[i])\n\nmy_purchased_item_list = ["コロッケ", "カニ", "アイスクリーム"]\nmy_item_price_list = [200, 1000, 300]\nmy_quantity_list = [2, 3, 1]\n\nprint(output_message)',correct:false,
+     why:'<b>✕</b> return が無く、accounting も呼んでいない。最後の output_message は関数の中だけの変数 → <b>エラー</b>。'},
+    {code:'def output_subtotal(item, price, num):\n    result = price * num\n    message = item + " " + str(num) + "個:" + str(result) + "円"\n\n    message\n\ndef accounting(purchased_item_list, price_list, quantity_list):\n    total_price = 0\n    output_message = ""\n\n    for i in range(0, len(purchased_item_list)):\n        output_message = output_subtotal(purchased_item_list[i], price_list[i], quantity_list[i])\n        print(output_message)\n\nmy_purchased_item_list = ["コロッケ", "カニ", "アイスクリーム"]\nmy_item_price_list = [200, 1000, 300]\nmy_quantity_list = [2, 3, 1]\n\naccounting(my_purchased_item_list, my_item_price_list, my_quantity_list)',correct:false,
+     why:'<b>✕</b> output_subtotal に<code>return</code>が無いので None が返り、「None」が3回表示される。'},
+    {code:'def output_subtotal(item, price, num):\n    result = price * num\n    message = item + " " + str(num) + "個:" + str(result) + "円"\n\n    return message\n\ndef accounting(purchased_item_list, price_list, quantity_list):\n    total_price = 0\n    output_message = ""\n\n    for i in range(0, len(purchased_item_list)):\n        output_message = output_subtotal(purchased_item_list[i], price_list[i], quantity_list[i])\n\nmy_purchased_item_list = ["コロッケ", "カニ", "アイスクリーム"]\nmy_item_price_list = [200, 1000, 300]\nmy_quantity_list = [2, 3, 1]\n\nprint(output_message)',correct:false,
+     why:'<b>✕</b> return はあるが、accounting を呼ばず、関数の外で output_message を使っている → <b>エラー</b>。'},
+    {code:'def output_subtotal(item, price, num):\n    result = price * num\n    message = item + " " + str(num) + "個:" + str(result) + "円"\n\n    return message\n\ndef accounting(purchased_item_list, price_list, quantity_list):\n    total_price = 0\n    output_message = ""\n\n    for i in range(0, len(purchased_item_list)):\n        output_message = output_subtotal(purchased_item_list[i], price_list[i], quantity_list[i])\n        print(output_message)\n\nmy_purchased_item_list = ["コロッケ", "カニ", "アイスクリーム"]\nmy_item_price_list = [200, 1000, 300]\nmy_quantity_list = [2, 3, 1]\n\naccounting(my_purchased_item_list, my_item_price_list, my_quantity_list)',correct:true,
+     why:'<b>◯ 正解。</b> 小計の文字を return し、ループの中で1つずつ print。accounting も呼んでいる。'}
+  ],
+  explainTitle:'正解④のコードを1行ずつ',
+  explainLines:[
+    ['def output_subtotal(item, price, num):','商品名・値段・個数を受け取る関数。'],
+    ['    result = price * num','小計（例 200×2=400）。'],
+    ['    message = item + " " + str(num) + "個:" + str(result) + "円"','「コロッケ 2個:400円」の文字を作る。'],
+    ['    return message','その文字を返す。'],
+    ['    for i in range(0, len(purchased_item_list)):','i を 0,1,2 と変えて、3つの商品を順に処理。'],
+    ['        output_message = output_subtotal(...[i], ...[i], ...[i])','同じ番号 i の名前・値段・個数を渡す。'],
+    ['        print(output_message)','1行ずつ表示。'],
+    ['accounting(my_purchased_item_list, my_item_price_list, my_quantity_list)','3つのリストを渡して実行。']
+  ]
+},
+/* 12 */ {
+  q:'「商品の合計金額は450円です」と出力されるプログラムを選びなさい。',
+  choices:[
+    {code:'eggs_price = "300"\nmilk_price = "150"\ntotal_cost = eggs_price + milk_price\n\nprint("商品の合計金額は" + str(total_cost) + "円です")',correct:false,
+     why:'<b>✕</b> 文字列どうしなので「300150」とつながってしまう。'},
+    {code:'eggs_price = "300"\nmilk_price = "150"\ntotal_cost = int(eggs_price) + int(milk_price)\n\nprint("商品の合計金額は" + str(total_cost) + "円です")',correct:true,
+     why:'<b>◯ 正解。</b> それぞれ int() で数にしてから足すので 300+150=450。'},
+    {code:'eggs_price = "300"\nmilk_price = "150"\ntotal_cost = int(eggs_price + milk_price)\n\nprint("商品の合計金額は" + str(total_cost) + "円です")',correct:false,
+     why:'<b>✕</b> 先に "300"+"150"="300150" とつないでから int にするので 300150 になる。'},
+    {code:'eggs_price = "300"\nmilk_price = "150"\ntotal_cost = str(eggs_price) + str(milk_price)\nprint("商品の合計金額は" + str(total_cost) + "円です")',correct:false,
+     why:'<b>✕</b> str() で文字のままつなぐので「300150」。'}
+  ],
+  explainTitle:'正解②のコードを1行ずつ',
+  explainLines:[
+    ['eggs_price = "300"','卵の値段（文字列）。'],
+    ['milk_price = "150"','牛乳の値段（文字列）。'],
+    ['total_cost = int(eggs_price) + int(milk_price)','それぞれ数にしてから足す → 450。'],
+    ['print("商品の合計金額は" + str(total_cost) + "円です")','「商品の合計金額は450円です」。']
+  ],
+  postNote:'ポイント：<code>int(a) + int(b)</code>（数にしてから足す）と <code>int(a + b)</code>（つないでから数にする）は結果が違う。'
+},
+/* 13 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  example:'合計300点\n特別賞です\n景品がもらえます',
+  choices:[
+    {code:'score_list = ["85", "75", "80", "60"]\nspecial_score = "300"\nflag = False\ntotal_score = 0\n\nfor i in range(0, 4):\n    total_score = total_score + int(score_list[i])\n\nprint("合計" + str(total_score) + "点")\nif total_score == int(special_score):\n    print("特別賞です")\n    flag = False\n\nif flag:\n    print("景品がもらえます")',correct:false,
+     why:'<b>✕</b> 特別賞のときも flag を False のままにしているので「景品がもらえます」が出ない。'},
+    {code:'score_list = ["85", "75", "80", "60"]\nspecial_score = "300"\nflag = False\ntotal_score = 0\n\nfor i in range(0, 4):\n    total_score = total_score + int(score_list[i])\n\nprint("合計" + str(total_score) + "点")\nif total_score == int(special_score):\n    print("特別賞です")\n    flag = True\n\nif flag:\n    print("景品がもらえます")',correct:true,
+     why:'<b>◯ 正解。</b> int() で合計300、"300" も int() で比べて一致 → flag を True にして景品も表示。'},
+    {code:'score_list = ["85", "75", "80", "60"]\nspecial_score = "300"\nflag = False\ntotal_score = 0\n\nfor i in range(0, 4):\n    total_score = total_score + score_list[i]\n\nprint("合計" + str(total_score) + "点")\nif total_score == special_score:\n    print("特別賞です")\n    flag = True\n\nif flag:\n    print("景品がもらえます")',correct:false,
+     why:'<b>✕</b> int() が無いので 0 + "85" で<b>エラー</b>。'},
+    {code:'score_list = ["85", "75", "80", "60"]\nspecial_score = "300"\nflag = False\ntotal_score = 0\n\nfor i in range(0, 4):\n    total_score = total_score + score_list[i]\n\nprint("合計" + str(total_score) + "点")\nif total_score == special_score:\n    print("特別賞です")\n    flag = False\n\nif flag:\n    print("景品がもらえます")',correct:false,
+     why:'<b>✕</b> int() が無くエラー。さらに flag も False のまま。'}
+  ],
+  explainTitle:'正解②のコードを1行ずつ',
+  explainLines:[
+    ['for i in range(0, 4):','i を 0〜3 と変えて4回くり返す。'],
+    ['    total_score = total_score + int(score_list[i])','文字の点数を数にして合計 → 300。'],
+    ['print("合計" + str(total_score) + "点")','「合計300点」。'],
+    ['if total_score == int(special_score):','300 == 300 なので…'],
+    ['    print("特別賞です")','「特別賞です」。'],
+    ['    flag = True','景品の目印を True に。'],
+    ['if flag:','True なので「景品がもらえます」。']
+  ]
+},
+/* 14 */ {
+  q:'「合計で200点です」と出力されるプログラムを選びなさい。',
+  choices:[
+    {code:'def get_sum(score1, score2):\n    total = score1 + score\n\n    return total\n\nprint("合計で" + str(get_sum("100", "100")) + "点です")',correct:false,
+     why:'<b>✕</b> <code>score</code>という変数は無い（score2 の書き間違い）→ <b>エラー</b>。int() も無い。'},
+    {code:'def get_sum(score1, score2):\n    total = int(score1) + int(score2)\n\nprint("合計で" + str(get_sum("100", "100")) + "点です")',correct:false,
+     why:'<b>✕</b> 計算は正しいが<code>return</code>が無いので「合計でNone点です」になる。'},
+    {code:'def get_sum(score1, score2):\n    total = score1 + score2\n\nprint("合計で" + str(get_sum("100", "100")) + "点です")',correct:false,
+     why:'<b>✕</b> return が無く、int() も無い（"100"+"100"="100100"）。'},
+    {code:'def get_sum(score1, score2):\n    total = int(score1) + int(score2)\n\n    return total\n\nprint("合計で" + str(get_sum("100", "100")) + "点です")',correct:true,
+     why:'<b>◯ 正解。</b> int() で数にして 100+100=200 を return。'}
+  ],
+  explainTitle:'正解④のコードを1行ずつ',
+  explainLines:[
+    ['def get_sum(score1, score2):','2つの点数を受け取る関数。'],
+    ['    total = int(score1) + int(score2)','文字の "100" を数にして足す → 200。'],
+    ['    return total','200を返す。'],
+    ['print("合計で" + str(get_sum("100", "100")) + "点です")','「合計で200点です」。']
+  ]
+},
+/* 15 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  note:'※ <code>len(arr)</code> は配列の長さの値を返すコードである',
+  example:'目標金額を達成することができました\n22000円集まりました',
+  choices:[
+    {code:'def confirm_donation(donation_list, total, target):\n    for i in range(0, len(donation_list)):\n        total = total + int(donation_list[i])\n\n    if total >= target:\n        print("目標金額を達成することができました")\n\ndonations = ["6000", "4000", "12000"]\ncurrent_money = 0\ntarget = 20000\n\nconfirm_donation(donations, current_money, target)\nprint(str(total) + "円集まりました")',correct:false,
+     why:'<b>✕</b> 最後の print が関数の外。total は関数の中だけの変数 → <b>エラー</b>。'},
+    {code:'def confirm_donation(donation_list, total, target):\n    for i in range(0, len(donation_list)):\n        total = total + donation_list[i]\n\n    if total >= target:\n        print("目標金額を達成することができました")\n\n    print(str(total) + "円集まりました")\n\ndonations = ["6000", "4000", "12000"]\ncurrent_money = 0\ntarget = 20000\n\nconfirm_donation(donations, current_money, target)',correct:false,
+     why:'<b>✕</b> 金額が文字列なのに int() が無い → 0 + "6000" で<b>エラー</b>。'},
+    {code:'def confirm_donation(donation_list, total, target):\n    for i in range(0, len(donation_list)):\n        total = total + donation_list[i]\n\n    if total >= target:\n        print("目標金額を達成することができました")\n\ndonations = ["6000", "4000", "12000"]\ncurrent_money = 0\ntarget = 20000\n\nconfirm_donation(donations, current_money, target)\nprint(str(total) + "円集まりました")',correct:false,
+     why:'<b>✕</b> int() が無くエラー。print も関数の外。'},
+    {code:'def confirm_donation(donation_list, total, target):\n    for i in range(0, len(donation_list)):\n        total = total + int(donation_list[i])\n\n    if total >= target:\n        print("目標金額を達成することができました")\n\n    print(str(total) + "円集まりました")\n\ndonations = ["6000", "4000", "12000"]\ncurrent_money = 0\ntarget = 20000\n\nconfirm_donation(donations, current_money, target)',correct:true,
+     why:'<b>◯ 正解。</b> int() で合計22000、20000以上で達成、集まった金額も関数の中で表示。'}
+  ],
+  explainTitle:'正解④のコードを1行ずつ',
+  explainLines:[
+    ['def confirm_donation(donation_list, total, target):','寄付リスト・今の金額・目標を受け取る関数。'],
+    ['    for i in range(0, len(donation_list)):','i を 0〜2 と変えて3回。'],
+    ['        total = total + int(donation_list[i])','数にして足す → 22000。'],
+    ['    if total >= target:','22000 ≧ 20000 なので達成メッセージ。'],
+    ['    print(str(total) + "円集まりました")','関数の中なので total が使える。'],
+    ['confirm_donation(donations, current_money, target)','関数を呼ぶ。']
+  ]
+},
+/* 16 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  example:'私がよく読む本のジャンルを紹介します\n推理小説\n歴史小説\n歴史小説は私が最も読んでいる本のジャンルです\n経済小説',
+  choices:[
+    {code:'book_genres = ["推理小説", "歴史小説", "経済小説"]\n\nprint("私がよく読む本のジャンルを紹介します")\nfor book_genre = book_genres:\n    print(book_genre)\n    if book_genre == "歴史小説":\n        print(book_genre + "は私が最も読んでいる本のジャンルです")',correct:false,
+     why:'<b>✕</b> <code>for book_genre = book_genres:</code>は<code>in</code>が無く<b>構文エラー</b>。'},
+    {code:'book_genres = ["推理小説", "歴史小説", "経済小説"]\n\nprint("私がよく読む本のジャンルを紹介します")\nfor book_genres in book_genre:\n    print(book_genre)\n    if book_genre == "歴史小説":\n        print(book_genre + "は私が最も読んでいる本のジャンルです")',correct:false,
+     why:'<b>✕</b> 名前が逆。book_genre という変数はまだ無い → <b>エラー</b>。'},
+    {code:'book_genres = ["推理小説", "歴史小説", "経済小説"]\n\nprint("私がよく読む本のジャンルを紹介します")\nfor book_genre in book_genres:\n    print(book_genre)\n    if book_genre == "歴史小説":\n        print(book_genre + "は私が最も読んでいる本のジャンルです")',correct:true,
+     why:'<b>◯ 正解。</b> リストから1つずつ取り出して表示し、歴史小説のときだけ1行追加。'}
+  ],
+  explainTitle:'正解③のコードを1行ずつ',
+  explainLines:[
+    ['book_genres = [...]','ジャンルのリスト（複数形の名前）。'],
+    ['for book_genre in book_genres:','1つずつ book_genre（単数形）に取り出す。'],
+    ['    print(book_genre)','ジャンル名を表示。'],
+    ['    if book_genre == "歴史小説":','歴史小説のときだけ…'],
+    ['        print(book_genre + "は私が最も読んでいる本のジャンルです")','追加の1行を表示。']
+  ]
+},
+/* 17 */ {
+  q:'「最も高い製品は550円でした」と出力されるプログラムを選びなさい。',
+  choices:[
+    {code:'price_list = [480, 510, 400, 550, 500]\nhighest_price = 0\nlowest_price = 10000\n\nfor price in price_list:\n    if price > highest_price:\n        highest_price = price\n    elif price < lowest_price:\n        lowest_price = price\n\nif True:\n    print("最も高い製品は" + str(highest_price) + "円でした")\nelse:\n    print("最も安い製品は" + str(lowest_price) + "円でした")',correct:true,
+     why:'<b>◯ 正解。</b> より大きい値が来るたびに highest_price を更新 → 550。if True で表示。'},
+    {code:'price_list = [480, 510, 400, 550, 500]\nhighest_price = 0\nlowest_price = 10000\n\nfor price = price_list:\n    if price > highest_price:\n        highest_price = price\n    elif price < lowest_price:\n        lowest_price = price\n\nif False:\n    print("最も高い製品は" + str(highest_price) + "円でした")\nelse:\n    print("最も安い製品は" + str(lowest_price) + "円でした")',correct:false,
+     why:'<b>✕</b> <code>for price = price_list:</code>で<b>構文エラー</b>。if False も逆。'},
+    {code:'price_list = [480, 510, 400, 550, 500]\nhighest_price = 0\nlowest_price = 10000\n\nfor price in price_list:\n    if price > highest_price:\n        highest_price = price\n    elif price < lowest_price:\n        lowest_price = price\n\nif False:\n    print("最も高い製品は" + str(highest_price) + "円でした")\nelse:\n    print("最も安い製品は" + str(lowest_price) + "円でした")',correct:false,
+     why:'<b>✕</b> if False なので「最も安い製品は…」が出てしまう。'},
+    {code:'price_list = [480, 510, 400, 550, 500]\nhighest_price = 0\nlowest_price = 10000\n\nfor price = price_list:\n    if price > highest_price:\n        highest_price = price\n    elif price < lowest_price:\n        lowest_price = price\n\nif True:\n    print("最も高い製品は" + str(highest_price) + "円でした")\nelse:\n    print("最も安い製品は" + str(lowest_price) + "円でした")',correct:false,
+     why:'<b>✕</b> <code>for price = price_list:</code>で<b>構文エラー</b>。'}
+  ],
+  explainTitle:'正解①のコードを1行ずつ',
+  explainLines:[
+    ['highest_price = 0','最高値の記録を0から（どの値段より小さい）。'],
+    ['lowest_price = 10000','最安値の記録を大きい数から。'],
+    ['for price in price_list:','値段を1つずつ調べる。'],
+    ['    if price > highest_price:','今までの最高値より高ければ…'],
+    ['        highest_price = price','記録を更新 → 最後は550。'],
+    ['if True:','必ず成立 →「最も高い製品は550円でした」。']
+  ]
+},
+/* 18 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  example:'日本の首都は東京\nスペインの首都はマドリード\nドイツの首都はベルリン',
+  choices:[
+    {code:'def search_capital():\n    capital = ""\n\n    if country_name == "日本":\n        capital = "東京"\n    elif country_name == "スペイン":\n        capital = "マドリード"\n    elif country_name == "ドイツ":\n        capital = "ベルリン"\n\n    print(country_name + "の首都は" + capital)\n\ncountries = ["日本", "スペイン", "ドイツ"]\n\nfor country in countries:\n    search_capital(country)',correct:false,
+     why:'<b>✕</b> <code>def search_capital():</code>に引数が無いのに値を渡している → <b>エラー</b>。'},
+    {code:'def search_capital(country_name):\n    capital = ""\n\n    if country_name == "日本":\n        capital = "東京"\n    elif country_name == "スペイン":\n        capital = "マドリード"\n    elif country_name == "ドイツ":\n        capital = "ベルリン"\n\n    print(country_name + "の首都は" + capital)\n\ncountries = ["日本", "スペイン", "ドイツ"]\n\nfor countries in country:\n    search_capital(country)',correct:false,
+     why:'<b>✕</b> <code>for countries in country:</code>で名前が逆（country はまだ無い）→ <b>エラー</b>。'},
+    {code:'def search_capital(country_name):\n    capital = ""\n\n    if country_name == "日本":\n        capital = "東京"\n    elif country_name == "スペイン":\n        capital = "マドリード"\n    elif country_name == "ドイツ":\n        capital = "ベルリン"\n\n    print(country_name + "の首都は" + capital)\n\ncountries = ["日本", "スペイン", "ドイツ"]\n\nfor country in countries:\n    search_capital(country)',correct:true,
+     why:'<b>◯ 正解。</b> 国名を1つずつ取り出して関数に渡し、首都を表示。'},
+    {code:'def search_capital():\n    capital = ""\n\n    if country_name == "日本":\n        capital = "東京"\n    elif country_name == "スペイン":\n        capital = "マドリード"\n    elif country_name == "ドイツ":\n        capital = "ベルリン"\n\n    print(country_name + "の首都は" + capital)\n\ncountries = ["日本", "スペイン", "ドイツ"]\n\nfor countries in country:\n    search_capital(country)',correct:false,
+     why:'<b>✕</b> 引数が無い ＋ for の名前が逆、の2つのエラー。'}
+  ],
+  explainTitle:'正解③のコードを1行ずつ',
+  explainLines:[
+    ['def search_capital(country_name):','国名を受け取る関数。'],
+    ['    if country_name == "日本":','国名によって首都を決める（if / elif）。'],
+    ['    print(country_name + "の首都は" + capital)','「日本の首都は東京」など。'],
+    ['for country in countries:','国名を1つずつ取り出す。'],
+    ['    search_capital(country)','その国名を関数に渡す → 3行表示。']
+  ]
+},
+/* 19 */ {
+  q:'「目標金額に達しました」と出力されるプログラムを選びなさい。',
+  choices:[
+    {code:'fund_raising_money = ["800", "400", "300", "200", "500"]\ntotal_money = "0"\ntarget_amounts = "2000"\n\nfor money in fund_raising_money:\n    total_money = total_money + money\n\nif total_money < target_amounts:\n    print("目標金額に達していません")\nelse:\n    print("目標金額に達しました")',correct:false,
+     why:'<b>✕</b> 全部文字列なので足し算ではなく「つなげる」になり、正しく比べられない（「達していません」が出る）。'},
+    {code:'fund_raising_money = ["800", "400", "300", "200", "500"]\ntotal_money = "0"\ntarget_amounts = "2000"\n\nfor fund_raising_money in money:\n    total_money = total_money + money\n\nif total_money < target_amounts:\n    print("目標金額に達していません")\nelse:\n    print("目標金額に達しました")',correct:false,
+     why:'<b>✕</b> <code>for fund_raising_money in money:</code>で名前が逆（money はまだ無い）→ <b>エラー</b>。'},
+    {code:'fund_raising_money = [800, 400, 300, 200, 500]\ntotal_money = 0\ntarget_amounts = 2000\n\nfor money in fund_raising_money:\n    total_money = total_money + money\n\nif total_money < target_amounts:\n    print("目標金額に達していません")\nelse:\n    print("目標金額に達しました")',correct:true,
+     why:'<b>◯ 正解。</b> 数どうしで合計2200。2000未満ではないので else →「目標金額に達しました」。'},
+    {code:'fund_raising_money = [800, 400, 300, 200, 500]\ntotal_money = 0\ntarget_amounts = 2000\n\nfor fund_raising_money in money:\n    total_money = total_money + money\n\nif total_money < target_amounts:\n    print("目標金額に達していません")\nelse:\n    print("目標金額に達しました")',correct:false,
+     why:'<b>✕</b> 値は数で正しいが、for の名前が逆 → <b>エラー</b>。'}
+  ],
+  explainTitle:'正解③のコードを1行ずつ',
+  explainLines:[
+    ['fund_raising_money = [800, 400, 300, 200, 500]','集まったお金（数）のリスト。'],
+    ['for money in fund_raising_money:','1つずつ取り出す。'],
+    ['    total_money = total_money + money','合計 → 2200。'],
+    ['if total_money < target_amounts:','2200 は 2000 より小さくないので…'],
+    ['else:','else へ →「目標金額に達しました」。']
+  ]
+},
+/* 20 */ {
+  q:'「ノゾミさんの予約が確認できました」と出力されるプログラムを選びなさい。',
+  choices:[
+    {code:'def accept(reserved_name, reservation_list):\n    message = "予約を確認できませんでした"\n\n    for name in reservation_list:\n        if name == reserved_name:\n            message = "予約が確認できました"\n\nname_list = ["ダイチ", "ハヤト", "ノゾミ", "シホ"]\nmy_name = "ノゾミ"\n\naccept(my_name, name_list)\nprint(reserved_name + "さんの" + message)',correct:false,
+     why:'<b>✕</b> print が関数の外。reserved_name・message は関数の中だけの変数 → <b>エラー</b>。'},
+    {code:'def accept(reserved_name, reservation_list):\n    message = "予約を確認できませんでした"\n\n    for name reservation_list:\n        if name == reserved_name:\n            message = "予約が確認できました"\n\nname_list = ["ダイチ", "ハヤト", "ノゾミ", "シホ"]\nmy_name = "ノゾミ"\n\naccept(my_name, name_list)\nprint(reserved_name + "さんの" + message)',correct:false,
+     why:'<b>✕</b> <code>for name reservation_list:</code>は<code>in</code>が抜けて<b>構文エラー</b>。print も外。'},
+    {code:'def accept(reserved_name, reservation_list):\n    message = "予約を確認できませんでした"\n\n    for name in reservation_list:\n        if name == reserved_name:\n            message = "予約が確認できました"\n\n    print(reserved_name + "さんの" + message)\n\nname_list = ["ダイチ", "ハヤト", "ノゾミ", "シホ"]\nmy_name = "ノゾミ"\n\naccept(my_name, name_list)',correct:true,
+     why:'<b>◯ 正解。</b> リストにノゾミがあるので message を書き換え、関数の中で表示。'},
+    {code:'def accept(reserved_name, reservation_list):\n    message = "予約を確認できませんでした"\n\n    for name reservation_list:\n        if name == reserved_name:\n            message = "予約が確認できました"\n\n    print(reserved_name + "さんの" + message)\n\nname_list = ["ダイチ", "ハヤト", "ノゾミ", "シホ"]\nmy_name = "ノゾミ"\n\naccept(my_name, name_list)',correct:false,
+     why:'<b>✕</b> print の位置は正しいが、<code>in</code>が抜けて<b>構文エラー</b>。'}
+  ],
+  explainTitle:'正解③のコードを1行ずつ',
+  explainLines:[
+    ['def accept(reserved_name, reservation_list):','名前と予約リストを受け取る関数。'],
+    ['    message = "予約を確認できませんでした"','最初は「できませんでした」にしておく。'],
+    ['    for name in reservation_list:','予約リストを1人ずつ調べる。'],
+    ['        if name == reserved_name:','同じ名前があれば…'],
+    ['            message = "予約が確認できました"','メッセージを書き換える。'],
+    ['    print(reserved_name + "さんの" + message)','関数の中で「ノゾミさんの予約が確認できました」。']
+  ]
+},
+/* 21 */ {
+  q:'「あたりです」または「はずれです」のどちらかがランダムに出力されるプログラムを選びなさい。',
+  note:'※ <code>random.random()</code> は 0以上1未満のランダムな小数 ／ ※ <code>math.floor(num)</code> は num 以下の最大の整数',
+  choices:[
+    {code:'import random\nimport math\n\nrandom_num = math.floor(random.random() * 4 + 1)\ntarget_num = 3\n\nif random_num == target_num:\n    print("あたりです")\nelse:\n    print("はずれです")',correct:true,
+     why:'<b>◯ 正解。</b> 1〜4 がランダムに出て、3 ならあたり、それ以外ははずれ。'},
+    {code:'import random\nimport math\n\nrandom_num = math.floor(random.random()) * 4 + 1\ntarget_num = 3\n\nif random_num == target_num:\n    print("あたりです")\nelse:\n    print("はずれです")',correct:false,
+     why:'<b>✕</b> 先に切り捨てて0、0×4+1 で<b>いつも1</b>。毎回「はずれです」。'}
+  ],
+  explainTitle:'正解①のコードを1行ずつ',
+  explainLines:[
+    ['random_num = math.floor(random.random() * 4 + 1)','1〜4.99… を切り捨てて 1〜4。'],
+    ['target_num = 3','あたりの数は3。'],
+    ['if random_num == target_num:','3 なら「あたりです」、それ以外は「はずれです」。']
+  ]
+},
+/* 22 */ {
+  q:'「今日の日替わりメニューはオムライスです」または「今日の日替わりメニューはパスタです」のどちらかがランダムに出力されるプログラムを選びなさい。',
+  note:'※ <code>random.random()</code> は 0以上1未満のランダムな小数 ／ ※ <code>math.floor(num)</code> は num 以下の最大の整数',
+  choices:[
+    {code:'import random\nimport math\n\ndef decide_menu(num):\n    if num == 1:\n        return "オムライス"\n    elif num == 2:\n        return "パスタ"\n\nrand_num = math.floor(random.random() * 2)\n\nprint("今日の日替わりメニューは" + decide_menu(rand_num) + "です")',correct:false,
+     why:'<b>✕</b> rand_num は 0 か 1。0 のときはどちらにも当てはまらず None が返って<b>エラー</b>。'},
+    {code:'import random\nimport math\n\ndef decide_menu(num):\n    if num == 1:\n        return "オムライス"\n    elif num == 2:\n        return "パスタ"\n\nrand_num = math.floor(random.random() * 2) + 1\n\nprint("今日の日替わりメニューは" + decide_menu(rand_num) + "です")',correct:true,
+     why:'<b>◯ 正解。</b> +1 で 1 か 2 になり、どちらも関数の条件に当てはまる。'},
+    {code:'import random\nimport math\n\ndef decide_menu(num):\n    if num == 1:\n        return "オムライス"\n    elif num == 2:\n        return "パスタ"\n\nrand_num = math.floor(random.random() * 2) + 1\n\nprint("今日の日替わりメニューは" + decide_menu() + "です")',correct:false,
+     why:'<b>✕</b> 乱数は正しいが、<code>decide_menu()</code>で引数を渡していない → <b>エラー</b>。'},
+    {code:'import random\nimport math\n\ndef decide_menu(num):\n    if num == 1:\n        return "オムライス"\n    elif num == 2:\n        return "パスタ"\n\nrand_num = math.floor(random.random() * 2)\n\nprint("今日の日替わりメニューは" + decide_menu() + "です")',correct:false,
+     why:'<b>✕</b> 引数を渡していない（エラー）うえに、乱数も 0 か 1。'}
+  ],
+  explainTitle:'正解②のコードを1行ずつ',
+  explainLines:[
+    ['def decide_menu(num):','番号でメニューを決める関数。'],
+    ['    if num == 1:','1ならオムライス、2ならパスタを返す。'],
+    ['rand_num = math.floor(random.random() * 2) + 1','0か1に+1して、1か2。'],
+    ['print("今日の日替わりメニューは" + decide_menu(rand_num) + "です")','どちらかがランダムに表示。']
+  ]
+},
+/* 23 */ {
+  q:'「ケンがトイレ掃除をします」または「ユウキがトイレ掃除をします」のどちらかがランダムに出力されるプログラムを選びなさい。',
+  note:'※ <code>random.random()</code> は 0以上1未満のランダムな小数 ／ ※ <code>math.floor(num)</code> は num 以下の最大の整数',
+  choices:[
+    {code:'import random\nimport math\n\ndef assign_duty(people, num):\n    if num > 5:\n        return people[0]\n    else:\n        return people[1]\n\npeople_list = ["ケン", "ユウキ"]\nrand_num = math.floor(random.random() * 10)\n\nprint(assign_duty(people_list, rand_num) + "がトイレ掃除をします")',correct:true,
+     why:'<b>◯ 正解。</b> 0〜9 のランダムな数で、5より大きければケン、それ以外はユウキを return。'},
+    {code:'import random\nimport math\n\ndef assign_duty(people, num):\n    if num > 5:\n        people[0]\n    else:\n        people[1]\n\npeople_list = ["ケン", "ユウキ"]\nrand_num = math.floor(random.random())\n\nprint(assign_duty(people_list, rand_num) + "がトイレ掃除をします")',correct:false,
+     why:'<b>✕</b> return が無く None でエラー。乱数も常に0。'},
+    {code:'import random\nimport math\n\ndef assign_duty(people, num):\n    if num > 5:\n        return people[0]\n    else:\n        return people[1]\n\npeople_list = ["ケン", "ユウキ"]\nrand_num = math.floor(random.random())\n\nprint(assign_duty(people_list, rand_num) + "がトイレ掃除をします")',correct:false,
+     why:'<b>✕</b> 乱数が<b>いつも0</b>なので、毎回ユウキになる。'},
+    {code:'import random\nimport math\n\ndef assign_duty(people, num):\n    if num > 5:\n        people[0]\n    else:\n        people[1]\n\npeople_list = ["ケン", "ユウキ"]\nrand_num = math.floor(random.random() * 10)\n\nprint(assign_duty(people_list, rand_num) + "がトイレ掃除をします")',correct:false,
+     why:'<b>✕</b> 乱数は正しいが、<code>return</code>が無いので None が返り<b>エラー</b>。'}
+  ],
+  explainTitle:'正解①のコードを1行ずつ',
+  explainLines:[
+    ['def assign_duty(people, num):','人のリストと数を受け取る関数。'],
+    ['    if num > 5:','数が5より大きければ…'],
+    ['        return people[0]','0番目のケンを返す（それ以外は1番目のユウキ）。'],
+    ['rand_num = math.floor(random.random() * 10)','0〜9 のランダムな整数。'],
+    ['print(assign_duty(people_list, rand_num) + "がトイレ掃除をします")','どちらかがランダムに表示。']
+  ]
+},
+/* 24 */ {
+  q:'「明日は雨だと思います」または「明日は曇りだと思います」のどちらかがランダムに出力されるプログラムを選びなさい。',
+  note:'※ <code>random.random()</code> は 0以上1未満のランダムな小数 ／ ※ <code>math.floor(num)</code> は num 以下の最大の整数',
+  choices:[
+    {code:'import random\nimport math\n\ndef forecast_weather():\n    random_num = math.floor(random.random() * 2)\n\nforecast_weather()\nif random_num == 0:\n    print("明日は曇りだと思います")\nelse:\n    print("明日は雨だと思います")',correct:false,
+     why:'<b>✕</b> if が関数の外。random_num は関数の中だけの変数 → <b>エラー</b>。'},
+    {code:'import random\nimport math\n\ndef forecast_weather():\n    random_num = math.floor(random.random())\n\n    if random_num == 0:\n        print("明日は曇りだと思います")\n    else:\n        print("明日は雨だと思います")\n\nforecast_weather()',correct:false,
+     why:'<b>✕</b> 乱数が<b>いつも0</b>なので、毎回「曇り」になる。'},
+    {code:'import random\nimport math\n\ndef forecast_weather():\n    random_num = math.floor(random.random() * 2)\n\n    if random_num == 0:\n        print("明日は曇りだと思います")\n    else:\n        print("明日は雨だと思います")\n\nforecast_weather()',correct:true,
+     why:'<b>◯ 正解。</b> 0 か 1 がランダムに出て、関数の中で判定・表示している。'},
+    {code:'import random\nimport math\n\ndef forecast_weather():\n    random_num = math.floor(random.random())\n\nforecast_weather()\nif random_num == 0:\n    print("明日は曇りだと思います")\nelse:\n    print("明日は雨だと思います")',correct:false,
+     why:'<b>✕</b> if が関数の外でエラー。乱数も常に0。'}
+  ],
+  explainTitle:'正解③のコードを1行ずつ',
+  explainLines:[
+    ['def forecast_weather():','天気を予想する関数。'],
+    ['    random_num = math.floor(random.random() * 2)','0 か 1 をランダムに作る。'],
+    ['    if random_num == 0:','0なら「曇り」、1なら「雨」（関数の中で判定）。'],
+    ['forecast_weather()','関数を呼んで実行。']
+  ]
+},
+/* 25 */ {
+  q:'「5」または「15」のどちらかがランダムに出力されるプログラムを選びなさい。',
+  note:'※ <code>random.random()</code> は 0以上1未満のランダムな小数 ／ ※ <code>math.floor(num)</code> は num 以下の最大の整数',
+  choices:[
+    {code:'import random\nimport math\n\ndef calculate(rand_num, num_list):\n    if rand_num > 5:\n        print(num_list[0] + num_list[1])\n    else:\n        print(num_list[0] - num_list[1])\n\nnumber_list = ["10", "5"]\nrand_num = math.floor(random.random())\n\ncalculate(rand_num, number_list)',correct:false,
+     why:'<b>✕</b> 乱数が常に0で else へ。さらに "10" - "5" は文字列で<b>エラー</b>。'},
+    {code:'import random\nimport math\n\ndef calculate(rand_num, num_list):\n    if rand_num > 5:\n        print(int(num_list[0]) + int(num_list[1]))\n    else:\n        print(int(num_list[0]) - int(num_list[1]))\n\nnumber_list = ["10", "5"]\nrand_num = math.floor(random.random() * 10)\n\ncalculate(rand_num, number_list)',correct:true,
+     why:'<b>◯ 正解。</b> 0〜9 がランダムで、6〜9 なら 10+5=15、0〜5 なら 10-5=5。int() で数にしている。'},
+    {code:'import random\nimport math\n\ndef calculate(rand_num, num_list):\n    if rand_num > 5:\n        print(int(num_list[0]) + int(num_list[1]))\n    else:\n        print(int(num_list[0]) - int(num_list[1]))\n\nnumber_list = ["10", "5"]\nrand_num = math.floor(random.random())\n\ncalculate(rand_num, number_list)',correct:false,
+     why:'<b>✕</b> 乱数が<b>いつも0</b>なので、毎回 5 しか出ない。'},
+    {code:'import random\nimport math\n\ndef calculate(rand_num, num_list):\n    if rand_num > 5:\n        print(num_list[0] + num_list[1])\n    else:\n        print(num_list[0] - num_list[1])\n\nnumber_list = ["10", "5"]\nrand_num = math.floor(random.random() * 10)\n\ncalculate(rand_num, number_list)',correct:false,
+     why:'<b>✕</b> int() が無いので、足すと「105」、引くと<b>エラー</b>になる。'}
+  ],
+  explainTitle:'正解②のコードを1行ずつ',
+  explainLines:[
+    ['def calculate(rand_num, num_list):','乱数と数のリストを受け取る関数。'],
+    ['    if rand_num > 5:','5より大きければ…'],
+    ['        print(int(num_list[0]) + int(num_list[1]))','10+5=15。'],
+    ['        print(int(num_list[0]) - int(num_list[1]))','（それ以外は）10-5=5。'],
+    ['rand_num = math.floor(random.random() * 10)','0〜9 のランダムな整数。'],
+    ['calculate(rand_num, number_list)','関数を呼ぶ → 5 か 15。']
+  ]
+},
+/* 26 */ {
+  type:'written',
+  q:'name さんの年齢が age 歳であることを説明する文字列を出力するプログラムを完成させなさい（解答欄に入るコードを書く）。',
+  constraint:'制約：name は 1文字以上10文字以下の文字列 ／ age は 0以上100以下の整数',
+  example:'【入力】name = "Tanaka", age = 25\n【出力】Tanakaさんは現在25歳です',
+  givenCode:'def get_explanation_of_age(name, age):\n    result = name + "さんは現在" + str(age) + "歳です"\n\n    return result\n\nname = "Tanaka"\nage = 25\n\n（ここが解答欄）\n\nprint(explanation)',
+  answerCode:'explanation = get_explanation_of_age(name, age)',
+  explainTitle:'解答例の考え方（1行ずつ）',
+  explainLines:[
+    ['explanation = get_explanation_of_age(name, age)','関数に name と age を渡し、返ってきた文字列を explanation に入れる。'],
+    ['print(explanation)','（もともとある行）「Tanakaさんは現在25歳です」。']
+  ],
+  postNote:'ポイント：最後の行で <code>explanation</code> を表示しているので、その名前の変数に関数の結果を入れる必要がある。'
+}
+];
+
+/* ===== エンジン ===== */
+let current = 0;
+let writtenAnswer = '';
+function tabKey(e,el){
+  if(e.key!=='Tab') return;
+  e.preventDefault();
+  const p=el.selectionStart;
+  el.value=el.value.slice(0,p)+'    '+el.value.slice(el.selectionEnd);
+  el.selectionStart=el.selectionEnd=p+4;
+  writtenAnswer=el.value;
+}
+const answered = new Array(QUIZ.length).fill(null);   // 選択式:選んだ番号 / 記述式:"revealed"
+const scoredCount = QUIZ.filter(function(x){return x.type!=='written';}).length;
+
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* 不正解の選択肢で「原因の行」を指定（問題index → 選択肢index → その行の文字列） */
+const BAD = {
+  0:{1:['if False:']},
+  1:{0:['announce():','if False:'],2:['if False:'],3:['announce():']},
+  2:{0:['forecast_weather()'],1:['def forecast_weather():']},
+  3:{1:['operate_atm()'],2:['operate_atm()'],3:['print(str(money_amount) + "円を振り込みました")']},
+  4:{1:['introduce_tip():'],2:['introduce_tip():','total_amount'],3:['total_amount']},
+  5:{0:['stock = "20"'],1:['if False:'],2:['stock = "20"']},
+  6:{0:['calculate_price():','dessert_price = "500"','drink_price = "150"'],1:['dessert_price = "500"','drink_price = "150"'],3:['calculate_price():']},
+  7:{0:['def add():'],2:['print("足し算の結果は" + str(add("1", "4")))'],3:['def add():','print("足し算の結果は" + str(add("1", "4")))']},
+  8:{0:['"山"','"海"'],2:['mountain_num = "0"','sea_num = "0"','"山"','"海"'],3:['mountain_num = "0"','sea_num = "0"']},
+  9:{0:['print(str(speed) + "km/hは" + str(math.floor((speed * 1000) / 3600)) + "m/sです")'],1:['speed = 180'],3:['print(str(speed) + "km/hは" + str(math.floor((speed * 1000) / 3600)) + "m/sです")']},
+  10:{0:['message','print(output_message)'],1:['message'],2:['print(output_message)']},
+  11:{0:['total_cost = eggs_price + milk_price'],2:['total_cost = int(eggs_price + milk_price)'],3:['total_cost = str(eggs_price) + str(milk_price)']},
+  12:{0:['flag = False'],2:['total_score = total_score + score_list[i]'],3:['total_score = total_score + score_list[i]']},
+  13:{0:['total = score1 + score'],1:['total = int(score1) + int(score2)'],2:['total = score1 + score2']},
+  14:{0:['print(str(total) + "円集まりました")'],1:['total = total + donation_list[i]'],2:['total = total + donation_list[i]','print(str(total) + "円集まりました")']},
+  15:{0:['for book_genre = book_genres:'],1:['for book_genres in book_genre:']},
+  16:{1:['for price = price_list:','if False:'],2:['if False:'],3:['for price = price_list:']},
+  17:{0:['def search_capital():'],1:['for countries in country:'],3:['def search_capital():','for countries in country:']},
+  18:{0:['fund_raising_money = ["800", "400", "300", "200", "500"]','total_money = "0"','target_amounts = "2000"'],1:['for fund_raising_money in money:'],3:['for fund_raising_money in money:']},
+  19:{0:['print(reserved_name + "さんの" + message)'],1:['for name reservation_list:','print(reserved_name + "さんの" + message)'],3:['for name reservation_list:']},
+  20:{1:['random_num = math.floor(random.random()) * 4 + 1']},
+  21:{0:['rand_num = math.floor(random.random() * 2)'],2:['print("今日の日替わりメニューは" + decide_menu() + "です")'],3:['print("今日の日替わりメニューは" + decide_menu() + "です")']},
+  22:{1:['people[0]','people[1]','rand_num = math.floor(random.random())'],2:['rand_num = math.floor(random.random())'],3:['people[0]','people[1]']},
+  23:{0:['if random_num == 0:'],1:['random_num = math.floor(random.random())'],3:['random_num = math.floor(random.random())','if random_num == 0:']},
+  24:{0:['rand_num = math.floor(random.random())','print(num_list[0] - num_list[1])'],2:['rand_num = math.floor(random.random())'],3:['print(num_list[0] + num_list[1])','print(num_list[0] - num_list[1])']}
+};
+
+/* コードを1行ずつ描画。答えた後は「原因の行」を赤くハイライト。 */
+function renderCodeHtml(code, badLines, done){
+  const lines = code.split('\n');
+  let h = '<pre>';
+  lines.forEach(function(ln){
+    const isBad = done && badLines.indexOf(ln.trim()) !== -1 && ln.trim() !== '';
+    h += '<span class="cline'+(isBad?' bad':'')+'">'+esc(ln)+(isBad?'<span class="mk">  ← ここが原因</span>':'')+'</span>';
+  });
+  h += '</pre>';
+  return h;
+}
+
+function render(){
+  if(current >= QUIZ.length){ renderFinal(); return; }
+  const item = QUIZ[current];
+  const isWritten = item.type === 'written';
+  const picked = answered[current];
+  const done = picked !== null;
+
+  let html = '<div class="card">';
+  html += '<div class="qhead"><span class="qno">第' + (current+1) + '問</span>';
+  html += '<span class="qtype">' + (isWritten ? '記述式' : '選択式') + '</span></div>';
+  html += '<div class="qtext">' + item.q + '</div>';
+  if(item.constraint) html += '<div class="qnote">' + item.constraint + '</div>';
+  if(item.example) html += '<div class="qexample">【出力例】\n' + esc(item.example) + '</div>';
+  if(item.note) html += '<div class="qnote">' + item.note + '</div>';
+  if(item.qcode) html += '<div class="qnote" style="margin-bottom:4px;">プログラム：</div><pre id="qcodePre" style="margin-bottom:14px;"></pre>';
+
+  if(isWritten){
+    html += '<div class="qnote" style="margin-bottom:4px;">問題プログラム：</div>';
+    html += '<pre id="givenPre"></pre>';
+    html += '<div class="qnote" style="margin:14px 0 4px;">✏️ 解答欄（ここに関数を書いてみよう）：</div>';
+    html += '<textarea id="writtenBox" spellcheck="false" placeholder="例）def ...." style="width:100%;min-height:110px;padding:10px 12px;border:1.5px solid var(--line);border-radius:8px;font-family:Consolas,Menlo,monospace;font-size:.9rem;line-height:1.5;resize:vertical;" oninput="writtenAnswer=this.value" onkeydown="tabKey(event,this)"></textarea>';
+    if(!done){
+      html += '<div style="margin-top:12px;"><button class="reveal-btn" onclick="reveal()">解答例を見る</button></div>';
+    }
+    html += '<div class="result ' + (done?'show':'') + '" style="margin-top:14px;">';
+    html += '<div class="qnote" style="margin-bottom:4px;">解答例（自分の答えと見比べよう）：</div>';
+    html += '<pre id="ansPre"></pre>';
+    html += buildExplain(item);
+    html += '</div>';
+  } else {
+    item.choices.forEach(function(c,i){
+      let cls='choice';
+      if(done){
+        if(i===picked) cls += c.correct?' correct':' wrong';
+        else if(c.correct) cls += ' correct';
+      }
+      const badLines = (BAD[current] && BAD[current][i]) ? BAD[current][i] : [];
+      html += '<button class="'+cls+'" '+(done?'disabled':'')+' onclick="pick('+i+')"><span class="label">'+LABELS[i]+'</span>'+renderCodeHtml(c.code, badLines, done)+'</button>';
+      html += '<div class="why '+(c.correct?'ok':'ng')+(done?' show':'')+'">'+c.why+'</div>';
+    });
+    html += '<div class="result '+(done?'show':'')+'">';
+    const ci = item.choices.findIndex(function(c){return c.correct;});
+    const right = done && picked===ci;
+    html += '<div class="badge '+(right?'ok':'ng')+'">'+(done?(right?'◯ 正解！':'✕ 残念、不正解（正解は'+LABELS[ci]+'）'):'')+'</div>';
+    html += buildExplain(item);
+    html += '</div>';
+  }
+  html += '</div>';
+  document.getElementById('stage').innerHTML = html;
+
+  // 記述式のコードは textContent で（選択式のコードは renderCodeHtml で描画済み）
+  if(isWritten){
+    document.getElementById('givenPre').textContent = item.givenCode;
+    document.getElementById('writtenBox').value = writtenAnswer;
+    if(document.getElementById('ansPre')) document.getElementById('ansPre').textContent = item.answerCode;
+  }
+  if(item.qcode) document.getElementById('qcodePre').textContent = item.qcode;
+  const codes = document.querySelectorAll('#stage .line code');
+  item.explainLines.forEach(function(l,i){ if(codes[i]) codes[i].textContent = l[0]; });
+
+  document.getElementById('ptext').textContent = (current+1)+' / '+QUIZ.length+' 問';
+  document.getElementById('pbar').style.width = ((current+1)/QUIZ.length*100)+'%';
+  document.getElementById('backBtn').disabled = (current===0);
+  const nb = document.getElementById('nextBtn');
+  nb.disabled = !done;
+  nb.textContent = (current===QUIZ.length-1)?'結果を見る →':'次へ →';
+  updateJump();
+}
+
+function buildExplain(item){
+  let h = '<div class="explain"><div class="head">'+item.explainTitle+'</div><div class="lines">';
+  item.explainLines.forEach(function(l){
+    h += '<div class="line"><code></code><span>'+l[1]+'</span></div>';
+  });
+  h += '</div></div>';
+  if(item.postNote) h += '<div class="postnote">'+item.postNote+'</div>';
+  return h;
+}
+
+function pick(i){
+  if(answered[current]!==null) return;
+  answered[current]=i;
+  render();
+}
+function reveal(){
+  answered[current]='revealed';
+  render();
+}
+function goNext(){ if(answered[current]===null) return; current++; render(); }
+function goBack(){ if(current>0){ current--; render(); } }
+
+function updateJump(){
+  const el = document.getElementById('jumpNums');
+  let s='';
+  for(let i=0;i<QUIZ.length;i++){
+    const mark = answered[i]!==null ? '●' : '○';
+    const style = i===current ? 'font-weight:800;color:var(--accent);' : 'color:var(--sub);';
+    s += '<a href="#" onclick="jumpTo('+i+');return false;" style="text-decoration:none;margin:0 3px;'+style+'">'+(i+1)+'</a>';
+  }
+  el.innerHTML = s;
+}
+function jumpTo(i){ current=i; render(); window.scrollTo(0,0); }
+
+function renderFinal(){
+  let score=0;
+  QUIZ.forEach(function(item,qi){
+    if(item.type==='written') return;
+    const ci=item.choices.findIndex(function(c){return c.correct;});
+    if(answered[qi]===ci) score++;
+  });
+  document.getElementById('ptext').textContent='結果';
+  document.getElementById('pbar').style.width='100%';
+  document.getElementById('nav').style.display='none';
+  const perfect = score===scoredCount;
+  document.getElementById('stage').innerHTML =
+    '<div class="card final">'+
+    '<div>おつかれさまでした！</div>'+
+    '<div class="score">'+score+' / '+scoredCount+' 問 正解</div>'+
+    '<div class="msg">'+(perfect?'全問正解！すばらしい🎉':'まちがえた問題は、下の番号や「戻る」で見直せます。')+'<br>（第26問は記述式のため採点には含みません）</div>'+
+    '<button class="nav-btn primary" onclick="restart()">もう一度やる</button>'+
+    '</div>';
+  updateJump();
+  document.getElementById('nav').style.display='flex';
+  document.getElementById('backBtn').disabled=false;
+  document.getElementById('nextBtn').disabled=true;
+  document.getElementById('nextBtn').textContent='結果を見る →';
+}
+function restart(){ writtenAnswer=''; current=0; for(let i=0;i<answered.length;i++) answered[i]=null; render(); window.scrollTo(0,0); }
+
+render();
+</script>
+</body>
+</html>

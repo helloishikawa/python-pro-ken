@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>プログラミング能力検定 対策教材メニュー</title>
+<style>
+  :root{
+    --bg:#f5f7fb; --card:#fff; --ink:#1f2933; --sub:#54616e; --line:#e0e5eb; --accent:#2f6bd6;
+    --lv3:#2f6bd6; --lv4:#0f9d6b; --quiz:#d98a1f;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;padding:30px 16px 70px;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI","Hiragino Kaku Gothic ProN","Meiryo",sans-serif;line-height:1.7;}
+  .wrap{max-width:860px;margin:0 auto;}
+  header.top{text-align:center;margin-bottom:8px;}
+  header.top h1{font-size:1.5rem;margin:0 0 6px;}
+  header.top p{margin:0;color:var(--sub);font-size:.92rem;}
+  .flow{background:#eef2f8;border-radius:12px;padding:12px 16px;margin:20px 0 28px;text-align:center;
+    color:#33404d;font-size:.9rem;font-weight:700;}
+  .flow span{color:var(--accent);}
+  .group{margin-bottom:30px;}
+  .group h2{font-size:1.05rem;margin:0 0 12px;display:flex;align-items:center;gap:10px;}
+  .badge{color:#fff;font-size:.78rem;font-weight:700;padding:3px 12px;border-radius:999px;}
+  .badge.lv3{background:var(--lv3);} .badge.lv4{background:var(--lv4);}
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;}
+  a.card{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--line);
+    border-radius:14px;padding:18px 18px;box-shadow:0 1px 3px rgba(30,40,60,.05);
+    transition:transform .12s,box-shadow .12s,border-color .12s;}
+  a.card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(30,50,90,.12);border-color:var(--accent);}
+  a.card .tag{display:inline-block;font-size:.72rem;font-weight:700;color:#fff;padding:2px 9px;border-radius:999px;margin-bottom:9px;}
+  a.card .tag.guide{background:var(--accent);}
+  a.card .tag.quiz{background:var(--quiz);}
+  a.card h3{margin:0 0 5px;font-size:1.02rem;}
+  a.card p{margin:0;color:var(--sub);font-size:.85rem;line-height:1.6;}
+  a.card .go{margin-top:10px;font-size:.82rem;font-weight:700;color:var(--accent);}
+  footer{text-align:center;color:var(--sub);font-size:.8rem;margin-top:24px;}
+  @media print{body{background:#fff;}a.card{box-shadow:none;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>プログラミング能力検定 対策教材</h1>
+    <p>Python版 ／ 学びたいものをクリックして開いてください</p>
+  </header>
+
+  <div class="flow">
+    おすすめの進め方：<span>①文法ガイドで学ぶ</span> → <span>②練習問題で試す</span> → <span>③模擬試験に挑戦</span>
+  </div>
+
+  <!-- レベル3 -->
+  <div class="group">
+    <h2><span class="badge lv3">レベル3</span></h2>
+    <div class="cards">
+      <a class="card" href="Pythonレベル3_文法ガイド.html">
+        <span class="tag guide">文法ガイド</span>
+        <h3>レベル3 文法ガイド</h3>
+        <p>変数の型（int・String・boolean）／乱数／関数／for（配列処理）を、説明＋正しい書き方＋つまずきポイントで解説。</p>
+        <div class="go">開く →</div>
+      </a>
+      <a class="card" href="Pythonレベル3_練習問題_2023年9月_原因ハイライト版.html">
+        <span class="tag quiz">練習問題</span>
+        <h3>レベル3 練習問題（2023年9月・原因ハイライト版）</h3>
+        <p>全26問のクイズ。◯✕・各選択肢の理由・正解コードの1行解説に加え、間違いの原因行が赤く光る。<b>おすすめ</b>。</p>
+        <div class="go">開く →</div>
+      </a>
+      <a class="card" href="Pythonレベル3_練習問題_2023年11月_原因ハイライト版.html">
+        <span class="tag quiz">練習問題</span>
+        <h3>レベル3 練習問題（2023年11月・原因ハイライト版）</h3>
+        <p>2023年11月検定の全26問。◯✕・各選択肢の理由・1行解説つき、間違いの原因行が赤く光る。</p>
+        <div class="go">開く →</div>
+      </a>
+      <a class="card" href="Pythonレベル3_練習問題_2023年10月_原因ハイライト版.html">
+        <span class="tag quiz">練習問題</span>
+        <h3>レベル3 練習問題（2023年10月・原因ハイライト版）</h3>
+        <p>2023年10月検定の全26問。◯✕・各選択肢の理由・1行解説つき、間違いの原因行が赤く光る。</p>
+        <div class="go">開く →</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- レベル4 -->
+  <div class="group">
+    <h2><span class="badge lv4">レベル4</span></h2>
+    <div class="cards">
+      <a class="card" href="Pythonレベル4_文法ガイド.html">
+        <span class="tag guide">文法ガイド</span>
+        <h3>レベル4 文法ガイド</h3>
+        <p>重点5（定数・switch/match・配列操作・while・break/continue）＋基礎5（for・if・関数・型変換・in）の全10トピック。</p>
+        <div class="go">開く →</div>
+      </a>
+    </div>
+  </div>
+
+  <footer>※ 各ファイルはこのフォルダの中にあります。教材が増えたら、このページにも入口を追加できます。</footer>
+</div>
+</body>
+</html>
