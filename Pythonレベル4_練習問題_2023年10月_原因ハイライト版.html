@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python レベル4 練習問題（2023年10月）</title>
+<style>
+  :root {
+    --bg:#f4f6fb; --card:#fff; --ink:#1f2933; --sub:#52606d; --line:#dfe3e8; --accent:#3b6ef5;
+    --ok-bg:#e6f6ec; --ok-ink:#1a7f45; --ok-line:#7bcf9a;
+    --ng-bg:#fdecec; --ng-ink:#c0392b; --ng-line:#f0a9a1;
+    --code-bg:#2b2f3a; --code-ink:#f2f4f8;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:20px 14px 60px; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI","Hiragino Kaku Gothic ProN","Meiryo",sans-serif; line-height:1.7; }
+  .wrap { max-width:820px; margin:0 auto; }
+  header h1 { font-size:1.2rem; margin:0 0 4px; }
+  header p { margin:0 0 14px; color:var(--sub); font-size:.82rem; }
+  .progress-row { display:flex; align-items:center; gap:12px; margin-bottom:16px; position:sticky; top:0;
+    background:var(--bg); padding:8px 0; z-index:5; }
+  .progress-text { font-size:.85rem; font-weight:700; color:var(--sub); white-space:nowrap; }
+  .bar { flex:1; height:9px; background:#e3e8f0; border-radius:999px; overflow:hidden; }
+  .bar > div { height:100%; width:0; background:var(--accent); border-radius:999px; transition:width .25s; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:20px 18px; box-shadow:0 1px 3px rgba(30,40,60,.05); }
+  .qhead { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .qno { background:var(--accent); color:#fff; font-size:.78rem; font-weight:700; padding:2px 10px; border-radius:999px; }
+  .qtype { background:#eef1f6; color:var(--sub); font-size:.72rem; font-weight:700; padding:2px 8px; border-radius:999px; }
+  .qtext { font-weight:700; margin:0 0 8px; white-space:pre-wrap; }
+  .qexample { background:#f7f9fc; border:1px dashed var(--line); border-radius:8px; padding:8px 12px;
+    margin:6px 0 14px; font-size:.9rem; color:#37414d; white-space:pre-wrap; }
+  .qnote { font-size:.8rem; color:var(--sub); margin:2px 0 12px; white-space:pre-wrap; }
+  .choice { display:block; width:100%; text-align:left; cursor:pointer; background:#fff;
+    border:1.5px solid var(--line); border-radius:10px; padding:10px 12px; margin-bottom:6px;
+    font:inherit; color:inherit; transition:border-color .15s,background .15s; }
+  .choice:hover:not(:disabled) { border-color:var(--accent); }
+  .choice .label { font-weight:700; margin-right:8px; color:var(--sub); }
+  pre { margin:6px 0 0; background:var(--code-bg); color:var(--code-ink); padding:11px 13px;
+    border-radius:8px; overflow-x:auto; font-family:"Consolas","SFMono-Regular","Menlo",monospace;
+    font-size:.86rem; line-height:1.5; }
+  pre .cline { display:block; white-space:pre; }
+  pre .cline:empty::after { content:"\00a0"; }
+  pre .cline.bad { background:rgba(224,80,70,.34); border-radius:3px; box-shadow:0 0 0 1px rgba(224,80,70,.5) inset; }
+  pre .cline.bad .mk { color:#ffc7c2; font-size:.82em; }
+  .choice.correct { background:var(--ok-bg); border-color:var(--ok-line); }
+  .choice.wrong { background:var(--ng-bg); border-color:var(--ng-line); }
+  .choice:disabled { cursor:default; }
+  .why { display:none; margin:5px 2px 12px; padding:9px 12px; border-radius:8px;
+    font-size:.88rem; border:1px solid var(--line); }
+  .why.show { display:block; }
+  .why.ok { background:var(--ok-bg); border-color:var(--ok-line); color:#155a33; }
+  .why.ng { background:var(--ng-bg); border-color:var(--ng-line); color:#8f2c20; }
+  .why b { font-weight:800; }
+  .why code, .line code, .qtext code, .qnote code { background:#2b2f3a; color:#f2f4f8; padding:1px 6px; border-radius:5px;
+    font-family:"Consolas","Menlo",monospace; font-size:.85em; }
+  .result { margin-top:6px; display:none; }
+  .result.show { display:block; }
+  .badge { font-weight:800; font-size:1.05rem; margin-bottom:10px; }
+  .badge.ok { color:var(--ok-ink); } .badge.ng { color:var(--ng-ink); }
+  .explain { border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+  .explain .head { background:#eef1f6; padding:8px 12px; font-weight:700; font-size:.88rem; }
+  .lines { margin:0; padding:6px 0; }
+  .line { display:flex; gap:10px; padding:6px 12px; font-size:.9rem; flex-wrap:wrap; }
+  .line code { white-space:pre; padding:2px 7px; }
+  .line span { color:var(--sub); flex:1; min-width:180px; }
+  .postnote { margin-top:12px; background:#fff7e6; border:1px solid #f0d79a; color:#8a6316;
+    border-radius:8px; padding:9px 12px; font-size:.83rem; }
+  .reveal-btn { font:inherit; font-weight:700; padding:11px 22px; border-radius:10px; cursor:pointer;
+    border:1.5px solid var(--accent); background:var(--accent); color:#fff; margin-top:6px; }
+  .nav { display:flex; justify-content:space-between; margin-top:16px; gap:10px; }
+  button.nav-btn { font:inherit; font-weight:700; padding:11px 20px; border-radius:10px; cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; color:var(--sub); }
+  button.nav-btn.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+  button.nav-btn:disabled { opacity:.4; cursor:default; }
+  .final { text-align:center; padding:36px 18px; }
+  .final .score { font-size:2.3rem; font-weight:800; color:var(--accent); margin:10px 0; }
+  .final .msg { color:var(--sub); margin-bottom:22px; }
+  .jump { margin-top:10px; font-size:.8rem; color:var(--sub); text-align:center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>プログラミング能力検定 Python レベル4 練習問題（2023年10月）</h1>
+    <p>2023年10月検定 過去問題（全26問）／ 選択肢を選ぶと ◯✕・各選択肢の理由・正解コードの1行解説が出ます</p>
+  </header>
+
+  <div class="progress-row">
+    <span class="progress-text" id="ptext">1 / 26 問</span>
+    <div class="bar"><div id="pbar"></div></div>
+  </div>
+
+  <div id="stage"></div>
+
+  <div class="nav" id="nav">
+    <button class="nav-btn" id="backBtn" onclick="goBack()">← 戻る</button>
+    <button class="nav-btn primary" id="nextBtn" onclick="goNext()" disabled>次へ →</button>
+  </div>
+  <div class="jump">問題番号をクリックで移動：<span id="jumpNums"></span></div>
+</div>
+
+<script>
+const LABELS = ['①','②','③','④'];
+
+const QUIZ = [
+/* 1 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  note:'※ <code>const.XXXX</code> は定数として値を定義するコードである',
+  example:'昼の部の開店時間は12時からです\n夜の部の開店時間は18時からです',
+  choices:[
+    {code:'import const\n\nstart_time = "12時"\n\nprint("昼の部の開店時間は" + start_time + "からです")\nstart_time = "18時"\nprint("夜の部の開店時間は" + start_time + "からです")',correct:true,
+     why:'<b>◯ 正解。</b> 途中で変える時刻は普通の変数なので、"18時" に書き換えてOK。'},
+    {code:'import const\n\nconst.START_TIME = "12時"\n\nprint("昼の部の開店時間は" + const.START_TIME + "からです")\nconst.START_TIME = "18時"\nprint("夜の部の開店時間は" + const.START_TIME + "からです")',correct:false,
+     why:'<b>✕</b> 定数 <code>const.START_TIME</code> を "18時" に<b>書き換えている</b>のでエラー。'}
+  ],
+  explainTitle:'正解①のコードを1行ずつ',
+  explainLines:[
+    ['start_time = "12時"','開店時間（あとで変えるので普通の変数）。'],
+    ['print("昼の部の開店時間は" + start_time + "からです")','「昼の部の開店時間は12時からです」。'],
+    ['start_time = "18時"','普通の変数なので書き換えOK。'],
+    ['print("夜の部の開店時間は" + start_time + "からです")','「夜の部の開店時間は18時からです」。']
+  ]
+},
+/* 2 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  example:'氷は固体の状態です\n水は液体の状態です\n水蒸気は気体の状態です',
+  choices:[
+    {code:'states = ["氷", "水", "水蒸気"]\n\nfor state in states:\n    match state:\n        case "氷":\n            print(state + "は固体の状態です")\n        case "水":\n            print(state + "は液体の状態です")\n        case "水蒸気":\n            print(state + "は気体の状態です")',correct:true,
+     why:'<b>◯ 正解。</b> <code>match state:</code> の下に <code>case "値":</code> を並べる正しい形。'},
+    {code:'states = ["氷", "水", "水蒸気"]\n\nfor state in states:\n    match:\n        case "氷":\n            print(state + "は固体の状態です")\n        case "水":\n            print(state + "は液体の状態です")\n        case "水蒸気":\n            print(state + "は気体の状態です")',correct:false,
+     why:'<b>✕</b> <code>match:</code> の後ろに調べる値が無い → 構文エラー。'},
+    {code:'states = ["氷", "水", "水蒸気"]\n\nfor state in states:\n    match state:\n        "氷":\n            print(state + "は固体の状態です")\n        "水":\n            print(state + "は液体の状態です")\n        "水蒸気":\n            print(state + "は気体の状態です")',correct:false,
+     why:'<b>✕</b> 分かれ道に <code>case</code> が無い → 構文エラー。'},
+    {code:'states = ["氷", "水", "水蒸気"]\n\nfor state in states:\n    match state:\n        case == "氷":\n            print(state + "は固体の状態です")\n        case == "水":\n            print(state + "は液体の状態です")\n        case == "水蒸気":\n            print(state + "は気体の状態です")',correct:false,
+     why:'<b>✕</b> <code>case == "氷":</code> は書き方が間違い。<code>case</code> の後ろには値をそのまま書く。'}
+  ],
+  explainTitle:'正解①のコードを1行ずつ',
+  explainLines:[
+    ['for state in states:','状態を1つずつ取り出す。'],
+    ['    match state:','state の中身で分かれる。'],
+    ['        case "氷":','「氷」なら「固体の状態です」。'],
+    ['        case "水":','「水」なら「液体の状態です」。'],
+    ['        case "水蒸気":','「水蒸気」なら「気体の状態です」。']
+  ]
+},
+/* 3 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  note:'※ <code>const.XXXX</code> は定数として値を定義するコードである',
+  example:'パソコンを起動します\nパソコンを起動し直します\nパソコンの電源を切ります',
+  choices:[
+    {code:'import const\n\noperation = ["起動", "再起動", "シャットダウン"]\noutput = "停止中"\n\nfor input in operation:\n    match input:\n        if "再起動":\n            output = "パソコンを起動し直します"\n        if "シャットダウン":\n            output = "パソコンの電源を切ります"\n        if "起動":\n            output = "パソコンを起動します"\n    print(output)',correct:false,
+     why:'<b>✕</b> match の中で <code>case</code> ではなく <code>if</code> を使っている → 構文エラー。'},
+    {code:'import const\n\noperation = ["起動", "再起動", "シャットダウン"]\nconst.OUTPUT = "停止中"\n\nfor input in operation:\n    match input:\n        case "再起動":\n            const.OUTPUT = "パソコンを起動し直します"\n        case "シャットダウン":\n            const.OUTPUT = "パソコンの電源を切ります"\n        case "起動":\n            const.OUTPUT = "パソコンを起動します"\n    print(const.OUTPUT)',correct:false,
+     why:'<b>✕</b> case は正しいが、変わっていく表示文を定数 <code>const.OUTPUT</code> にして書き換えている → エラー。'},
+    {code:'import const\n\noperation = ["起動", "再起動", "シャットダウン"]\noutput = "停止中"\n\nfor input in operation:\n    match input:\n        case "再起動":\n            output = "パソコンを起動し直します"\n        case "シャットダウン":\n            output = "パソコンの電源を切ります"\n        case "起動":\n            output = "パソコンを起動します"\n    print(output)',correct:true,
+     why:'<b>◯ 正解。</b> <code>case</code> で分かれ、表示文は普通の変数 <code>output</code> に入れる。'},
+    {code:'import const\n\noperation = ["起動", "再起動", "シャットダウン"]\nconst.OUTPUT = "停止中"\n\nfor input in operation:\n    match input:\n        if "再起動":\n            const.OUTPUT = "パソコンを起動し直します"\n        if "シャットダウン":\n            const.OUTPUT = "パソコンの電源を切ります"\n        if "起動":\n            const.OUTPUT = "パソコンを起動します"\n    print(const.OUTPUT)',correct:false,
+     why:'<b>✕</b> <code>if</code> を使っていて構文エラー、さらに定数も書き換えている。'}
+  ],
+  explainTitle:'正解③のコードを1行ずつ',
+  explainLines:[
+    ['output = "停止中"','表示する文（変わるので普通の変数）。'],
+    ['for input in operation:','操作を1つずつ。'],
+    ['    match input:','操作の内容で分かれる。'],
+    ['        case "起動":','（例）「起動」なら output を「パソコンを起動します」に。'],
+    ['    print(output)','1回ごとに表示 → 3行。']
+  ],
+  postNote:'補足：写真では <code>print(output)</code> の字下げが見えにくかったため、出力が3行になるよう「ループの中」として載せています。'
+},
+/* 4 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  example:'前進しました\n後進しました\nエネルギーが足りません',
+  choices:[
+    {code:'commands = ["前進", "後進", "後進", "後進"]\nenergy = 100\ncount = 0\n\nfor True:\n    if energy < 40:\n        print("エネルギーが足りません")\n        break\n    else:\n        print(commands[count] + "しました")\n        energy = energy - 40\n        count = count + 1',correct:false,
+     why:'<b>✕</b> 条件でくり返すのは <code>while</code>。<code>for True:</code> は構文エラー。'},
+    {code:'commands = ["前進", "後進", "後進", "後進"]\nenergy = 100\ncount = 0\n\nwhile True:\n    if energy < 40:\n        print("エネルギーが足りません")\n        break\n    else:\n        print(commands[count] + "しました")\n        energy = energy - 40\n        count = count + 1',correct:true,
+     why:'<b>◯ 正解。</b> <code>while True:</code> でくり返し、100→60→20 と減って40未満になったら <code>break</code>。'},
+    {code:'commands = ["前進", "後進", "後進", "後進"]\nenergy = 100\ncount = 0\n\nwhile:\n    if energy < 40:\n        print("エネルギーが足りません")\n        break\n    else:\n        print(commands[count] + "しました")\n        energy = energy - 40\n        count = count + 1',correct:false,
+     why:'<b>✕</b> <code>while:</code> の後ろに条件が無い → 構文エラー。'}
+  ],
+  explainTitle:'正解②のコードを1行ずつ',
+  explainLines:[
+    ['while True:','break するまでずっとくり返す。'],
+    ['    if energy < 40:','エネルギーが40未満なら…'],
+    ['        break','「足りません」と表示してループ終了。'],
+    ['        print(commands[count] + "しました")','そうでなければ動いて表示。'],
+    ['        energy = energy - 40','エネルギーを40減らす（100→60→20）。']
+  ]
+},
+/* 5 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  note:'※ <code>const.XXXX</code> 定数 ／ <code>len(arr)</code> 配列の長さ',
+  example:'3GBのファイルのダウンロードを完了しました\n5GBのファイルのダウンロードを完了しました\n4GBのファイルをダウンロードするには容量が足りません\nファイルを2個ダウンロードしました',
+  choices:[
+    {code:'import const\n\ndownload_files = [3, 5, 4]\ncount = 0\nconst.FREE_CAPACITY = 10\n\nwhile const.FREE_CAPACITY > 0:\n    if const.FREE_CAPACITY > download_files[count]:\n        const.FREE_CAPACITY = const.FREE_CAPACITY - download_files[count]\n        print(str(download_files[count]) + "GBのファイルのダウンロードを完了しました")\n        count = count + 1\n    else:\n        print(str(download_files[count]) + "GBのファイルをダウンロードするには容量が足りません")\n        break\n\nprint("ファイルを" + str(count) + "個ダウンロードしました")',correct:false,
+     why:'<b>✕</b> 減っていく空き容量を定数 <code>const.FREE_CAPACITY</code> にして書き換えている → エラー。'},
+    {code:'import const\n\ndownload_files = [3, 5, 4]\ncount = 0\nconst.FREE_CAPACITY = 10\n\nwhile:\n    if const.FREE_CAPACITY > download_files[count]:\n        const.FREE_CAPACITY = const.FREE_CAPACITY - download_files[count]\n        print(str(download_files[count]) + "GBのファイルのダウンロードを完了しました")\n        count = count + 1\n    else:\n        print(str(download_files[count]) + "GBのファイルをダウンロードするには容量が足りません")\n        break\n\nprint("ファイルを" + str(count) + "個ダウンロードしました")',correct:false,
+     why:'<b>✕</b> <code>while:</code> に条件が無い（構文エラー）うえ、定数も書き換えている。'},
+    {code:'import const\n\ndownload_files = [3, 5, 4]\ncount = 0\nfree_capacity = 10\n\nwhile free_capacity > 0:\n    if free_capacity > download_files[count]:\n        free_capacity = free_capacity - download_files[count]\n        print(str(download_files[count]) + "GBのファイルのダウンロードを完了しました")\n        count = count + 1\n    else:\n        print(str(download_files[count]) + "GBのファイルをダウンロードするには容量が足りません")\n        break\n\nprint("ファイルを" + str(count) + "個ダウンロードしました")',correct:true,
+     why:'<b>◯ 正解。</b> 空き容量は普通の変数。10→7→2 と減り、4GBは入らないので <code>break</code>。'},
+    {code:'import const\n\ndownload_files = [3, 5, 4]\ncount = 0\nfree_capacity = 10\n\nwhile:\n    if free_capacity > download_files[count]:\n        free_capacity = free_capacity - download_files[count]\n        print(str(download_files[count]) + "GBのファイルのダウンロードを完了しました")\n        count = count + 1\n    else:\n        print(str(download_files[count]) + "GBのファイルをダウンロードするには容量が足りません")\n        break\n\nprint("ファイルを" + str(count) + "個ダウンロードしました")',correct:false,
+     why:'<b>✕</b> <code>while:</code> に条件が無い → 構文エラー。'}
+  ],
+  explainTitle:'正解③のコードを1行ずつ',
+  explainLines:[
+    ['free_capacity = 10','空き容量（減っていくので普通の変数）。'],
+    ['while free_capacity > 0:','空きがある間くり返す。'],
+    ['    if free_capacity > download_files[count]:','次のファイルが入るなら…'],
+    ['        free_capacity = free_capacity - download_files[count]','空き容量を減らす（10→7→2）。'],
+    ['    else:','入らなければ「足りません」と表示して…'],
+    ['        break','終了。count は2。']
+  ]
+},
+/* 6 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  note:'※ <code>len(arr)</code> 配列の長さ ／ <code>arr.pop(num)</code> num番目を消去',
+  example:'野球場はここから徒歩で約10分です\n遊園地は現在休業中です\n博物館はここからバスで約30分です',
+  choices:[
+    {code:'destination_list = ["野球場", "遊園地", "博物館"]\n\nwhile len(destination_list) > 0:\n    match destination_list[0]:\n        case "野球場":\n            print(destination_list[0] + "はここから徒歩で約10分です")\n        case "博物館":\n            print(destination_list[0] + "はここからバスで約30分です")\n        case "遊園地":\n            print(destination_list[0] + "は現在休業中です")\n    destination_list.pop(0)',correct:true,
+     why:'<b>◯ 正解。</b> リストが空になるまで、先頭を match で調べて <code>pop(0)</code> で消していく。'},
+    {code:'destination_list = ["野球場", "遊園地", "博物館"]\n\nwhile:\n    match destination_list[0]:\n        case "野球場":\n            print(destination_list[0] + "はここから徒歩で約10分です")\n        case "博物館":\n            print(destination_list[0] + "はここからバスで約30分です")\n        case "遊園地":\n            print(destination_list[0] + "は現在休業中です")\n    destination_list.pop(0)',correct:false,
+     why:'<b>✕</b> <code>while:</code> に条件が無い → 構文エラー。'},
+    {code:'destination_list = ["野球場", "遊園地", "博物館"]\n\nwhile:\n    match destination_list[0]:\n        "野球場":\n            print(destination_list[0] + "はここから徒歩で約10分です")\n        "博物館":\n            print(destination_list[0] + "はここからバスで約30分です")\n        "遊園地":\n            print(destination_list[0] + "は現在休業中です")\n    destination_list.pop(0)',correct:false,
+     why:'<b>✕</b> while の条件も <code>case</code> も無い → 構文エラー。'},
+    {code:'destination_list = ["野球場", "遊園地", "博物館"]\n\nwhile len(destination_list) > 0:\n    match destination_list[0]:\n        "野球場":\n            print(destination_list[0] + "はここから徒歩で約10分です")\n        "博物館":\n            print(destination_list[0] + "はここからバスで約30分です")\n        "遊園地":\n            print(destination_list[0] + "は現在休業中です")\n    destination_list.pop(0)',correct:false,
+     why:'<b>✕</b> while は正しいが、<code>case</code> が無い → 構文エラー。'}
+  ],
+  explainTitle:'正解①のコードを1行ずつ',
+  explainLines:[
+    ['while len(destination_list) > 0:','行き先が残っている間くり返す。'],
+    ['    match destination_list[0]:','先頭の行き先で分かれる。'],
+    ['        case "野球場":','野球場なら「徒歩で約10分です」など。'],
+    ['    destination_list.pop(0)','先頭を消して次の行き先へ（遊園地→博物館の順）。']
+  ]
+},
+/* 7 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  example:'フランス\nイタリアには行ったことがあります\nアメリカ\nスペイン',
+  choices:[
+    {code:'countries = ["フランス", "イタリア", "アメリカ", "スペイン"]\n\nfor country in countries:\n    if country == "イタリア":\n        print(country + "には行ったことがあります")\n        continue\n    print(country)',correct:true,
+     why:'<b>◯ 正解。</b> イタリアでは特別な文を出して <code>continue</code>（下の print をとばす）。'},
+    {code:'countries = ["フランス", "イタリア", "アメリカ", "スペイン"]\n\nfor country in countries:\n    if country == "イタリア":\n        print(country + "には行ったことがあります")\n        break\n    print(country)',correct:false,
+     why:'<b>✕</b> <code>break</code> だとイタリアで終わり、アメリカ・スペインが出ない。'},
+    {code:'countries = ["フランス", "イタリア", "アメリカ", "スペイン"]\n\nfor country in countries:\n    if country == "イタリア":\n        print(country + "には行ったことがあります")\n    print(country)',correct:false,
+     why:'<b>✕</b> とばす命令が無いので、イタリアのあとに「イタリア」も表示されてしまう。'}
+  ],
+  explainTitle:'正解①のコードを1行ずつ',
+  explainLines:[
+    ['for country in countries:','国を1つずつ。'],
+    ['    if country == "イタリア":','イタリアなら…'],
+    ['        print(country + "には行ったことがあります")','特別な文を表示して…'],
+    ['        continue','下の print はとばして次の国へ。'],
+    ['    print(country)','ほかの国は国名だけ表示。']
+  ]
+},
+/* 8 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  note:'※ <code>len(arr)</code> 配列の長さ ／ <code>arr.pop(num)</code> num番目を消去',
+  example:'機械の点検を行います\n1号機の点検を完了しました\n2号機の点検を完了しました\n3号機は点検済みです\n4号機の点検を完了しました',
+  choices:[
+    {code:'units = ["1号機", "2号機", "3号機", "4号機"]\ninspected_unit = "3号機"\n\nprint("機械の点検を行います")\nif len(units) > 0:\n    if units[0] == inspected_unit:\n        print(inspected_unit + "は点検済みです")\n        units.pop(0)\n        break\n    print(units[0] + "の点検を完了しました")\n    units.pop(0)',correct:false,
+     why:'<b>✕</b> <code>if</code> は1回だけでくり返さない。しかも <code>break</code> はループの中でしか使えずエラー。'},
+    {code:'units = ["1号機", "2号機", "3号機", "4号機"]\ninspected_unit = "3号機"\n\nprint("機械の点検を行います")\nif len(units) > 0:\n    if units[0] == inspected_unit:\n        print(inspected_unit + "は点検済みです")\n        units.pop(0)\n        continue\n    print(units[0] + "の点検を完了しました")\n    units.pop(0)',correct:false,
+     why:'<b>✕</b> <code>if</code> では1回だけ。<code>continue</code> もループの外ではエラー。'},
+    {code:'units = ["1号機", "2号機", "3号機", "4号機"]\ninspected_unit = "3号機"\n\nprint("機械の点検を行います")\nwhile len(units) > 0:\n    if units[0] == inspected_unit:\n        print(inspected_unit + "は点検済みです")\n        units.pop(0)\n        break\n    print(units[0] + "の点検を完了しました")\n    units.pop(0)',correct:false,
+     why:'<b>✕</b> 3号機のところで <code>break</code> するので、4号機が点検されない。'},
+    {code:'units = ["1号機", "2号機", "3号機", "4号機"]\ninspected_unit = "3号機"\n\nprint("機械の点検を行います")\nwhile len(units) > 0:\n    if units[0] == inspected_unit:\n        print(inspected_unit + "は点検済みです")\n        units.pop(0)\n        continue\n    print(units[0] + "の点検を完了しました")\n    units.pop(0)',correct:true,
+     why:'<b>◯ 正解。</b> 3号機は「点検済み」と出して消し、<code>continue</code> で次へ。4号機まで続く。'}
+  ],
+  explainTitle:'正解④のコードを1行ずつ',
+  explainLines:[
+    ['while len(units) > 0:','機械が残っている間くり返す。'],
+    ['    if units[0] == inspected_unit:','先頭が3号機なら…'],
+    ['        units.pop(0)','「点検済み」と表示して先頭から消し…'],
+    ['        continue','下の「点検完了」はとばして次へ。'],
+    ['    print(units[0] + "の点検を完了しました")','ほかの機械は点検完了と表示。'],
+    ['    units.pop(0)','先頭を消して次の機械へ。']
+  ]
+},
+/* 9 */ {
+  q:'「オレンジを20個買いました」と出力されるプログラムを選びなさい。',
+  choices:[
+    {code:'money = 2000\norange_price = 100\norange_stock = 30\n\nfor i in range(0, orange_stock):\n    money = money - orange_price\n    if money < 0:\n        print("オレンジを" + str(i) + "個買いました")\n        continue',correct:false,
+     why:'<b>✕</b> <code>continue</code> では止まらず、21個目以降もくり返して表示が何回も出る。'},
+    {code:'money = 2000\norange_price = 100\norange_stock = 30\n\nfor i in range(0, orange_stock):\n    money = money - orange_price\n    if money < 0:\n        print("オレンジを" + str(i) + "個買いました")\n        break',correct:true,
+     why:'<b>◯ 正解。</b> お金がマイナスになった時点（i=20）で表示して <code>break</code>。'}
+  ],
+  explainTitle:'正解②のコードを1行ずつ',
+  explainLines:[
+    ['for i in range(0, orange_stock):','i を 0〜29 と変えてくり返す。'],
+    ['    money = money - orange_price','1個買うたびに100円減らす。'],
+    ['    if money < 0:','お金が足りなくなったら（i=20のとき）…'],
+    ['        print("オレンジを" + str(i) + "個買いました")','それまでに買えた20個を表示。'],
+    ['        break','ループを終わる。']
+  ]
+},
+/* 10 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  note:'※ <code>const.XXXX</code> は定数として値を定義するコードである',
+  example:'10日間15食分の食料で無人島生活します\n5日間分の食料を食べました\n食料がなくなりました',
+  choices:[
+    {code:'import const\n\nday = 10\nstock = 15\nconst.COUNT = 0\n\nprint(str(day) + "日間" + str(stock) + "食分の食料で無人島生活します")\nwhile day > const.COUNT:\n    stock = stock - 3\n    const.COUNT = const.COUNT + 1\n    if stock <= 0:\n        print(str(const.COUNT) + "日間分の食料を食べました")\n        print("食料がなくなりました")',correct:false,
+     why:'<b>✕</b> 数える <code>const.COUNT</code> を書き換えていてエラー。<code>break</code> も無い。'},
+    {code:'import const\n\nday = 10\nstock = 15\nconst.COUNT = 0\n\nprint(str(day) + "日間" + str(stock) + "食分の食料で無人島生活します")\nwhile day > const.COUNT:\n    stock = stock - 3\n    const.COUNT = const.COUNT + 1\n    if stock <= 0:\n        print(str(const.COUNT) + "日間分の食料を食べました")\n        print("食料がなくなりました")\n        break',correct:false,
+     why:'<b>✕</b> break はあるが、定数 <code>const.COUNT</code> を書き換えているのでエラー。'},
+    {code:'import const\n\nday = 10\nstock = 15\ncount = 0\n\nprint(str(day) + "日間" + str(stock) + "食分の食料で無人島生活します")\nwhile day > count:\n    stock = stock - 3\n    count = count + 1\n    if stock <= 0:\n        print(str(count) + "日間分の食料を食べました")\n        print("食料がなくなりました")\n        break',correct:true,
+     why:'<b>◯ 正解。</b> 日数は普通の変数で数え、5日目に食料が0になったら表示して <code>break</code>。'},
+    {code:'import const\n\nday = 10\nstock = 15\ncount = 0\n\nprint(str(day) + "日間" + str(stock) + "食分の食料で無人島生活します")\nwhile day > count:\n    stock = stock - 3\n    count = count + 1\n    if stock <= 0:\n        print(str(count) + "日間分の食料を食べました")\n        print("食料がなくなりました")',correct:false,
+     why:'<b>✕</b> <code>break</code> が無いので、食料がマイナスになっても10日まで続き、何度も表示される。'}
+  ],
+  explainTitle:'正解③のコードを1行ずつ',
+  explainLines:[
+    ['count = 0','過ごした日数（普通の変数）。'],
+    ['while day > count:','10日になるまでくり返す。'],
+    ['    stock = stock - 3','1日3食分減らす。'],
+    ['    count = count + 1','日数を1増やす。'],
+    ['    if stock <= 0:','食料が無くなったら（5日目）…'],
+    ['        break','表示してループ終了。']
+  ]
+},
+/* 11 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  example:'ページが見つからない、もしくは存在しません\nページが見つからない、もしくは存在しません',
+  choices:[
+    {code:'def message(status):\n    match:\n        case "404":\n            print("ページが見つからない、もしくは存在しません")\n        case "500":\n            print("サーバーへのアクセスが混雑しています")\n        case _:\n            print("異常ありません")\n\nstatuses = ["404", "404", "500", "301"]\nerror_count = 0\n\nfor status in statuses:\n    message(status)\n    if (status == "404") or (status == "500"):\n        error_count = error_count + 1\n    if error_count >= 2:\n        break',correct:false,
+     why:'<b>✕</b> <code>match:</code> に調べる値が無い → 構文エラー。'},
+    {code:'def message(status):\n    match status:\n        case "404":\n            print("ページが見つからない、もしくは存在しません")\n        case "500":\n            print("サーバーへのアクセスが混雑しています")\n        case _:\n            print("異常ありません")\n\nstatuses = ["404", "404", "500", "301"]\nerror_count = 0\n\nfor status in statuses:\n    message(status)\n    if (status == "404") or (status == "500"):\n        error_count = error_count + 1\n    if error_count >= 2:\n        break',correct:true,
+     why:'<b>◯ 正解。</b> 404を2回表示した時点でエラーが2つになり <code>break</code>。'},
+    {code:'def message(status):\n    match:\n        case "404":\n            print("ページが見つからない、もしくは存在しません")\n        case "500":\n            print("サーバーへのアクセスが混雑しています")\n        case _:\n            print("異常ありません")\n\nstatuses = ["404", "404", "500", "301"]\nerror_count = 0\n\nfor status in statuses:\n    message(status)\n    if (status == "404") or (status == "500"):\n        error_count = error_count + 1\n    if error_count >= 2:\n        continue',correct:false,
+     why:'<b>✕</b> match の値が無い（構文エラー）＋ continue では止まらない。'},
+    {code:'def message(status):\n    match status:\n        case "404":\n            print("ページが見つからない、もしくは存在しません")\n        case "500":\n            print("サーバーへのアクセスが混雑しています")\n        case _:\n            print("異常ありません")\n\nstatuses = ["404", "404", "500", "301"]\nerror_count = 0\n\nfor status in statuses:\n    message(status)\n    if (status == "404") or (status == "500"):\n        error_count = error_count + 1\n    if error_count >= 2:\n        continue',correct:false,
+     why:'<b>✕</b> <code>continue</code> では止まらず、500 と 301 の行まで4行表示される。'}
+  ],
+  explainTitle:'正解②のコードを1行ずつ',
+  explainLines:[
+    ['def message(status):','状態コードでメッセージを出す関数。'],
+    ['    match status:','status で分かれる（404/500/その他）。'],
+    ['    message(status)','まずメッセージを表示。'],
+    ['    if (status == "404") or (status == "500"):','404 か 500 なら…'],
+    ['        error_count = error_count + 1','エラーを数える。'],
+    ['    if error_count >= 2:','2つになったら…'],
+    ['        break','終了（404が2回出たところで止まる）。']
+  ]
+},
+/* 12 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  example:'廊下の掃除をします\n今日は階段の掃除をしません\n教室の掃除をします\n教室の掃除が終わったので今日の掃除を終わります',
+  choices:[
+    {code:'place_list = ["廊下", "階段", "教室", "玄関", "トイレ"]\n\nfor place in place_list:\n    if place == "階段":\n        print("今日は階段の掃除をしません")\n        continue\n    print(place + "の掃除をします")\n    if place == "教室":\n        print("教室の掃除が終わったので今日の掃除を終わります")\n        break',correct:true,
+     why:'<b>◯ 正解。</b> 階段は <code>continue</code> でとばし、教室が終わったら <code>break</code>。'},
+    {code:'place_list = ["廊下", "階段", "教室", "玄関", "トイレ"]\n\nfor place in place_list:\n    if place == "階段":\n        print("今日は階段の掃除をしません")\n    print(place + "の掃除をします")\n    if place == "教室":\n        print("教室の掃除が終わったので今日の掃除を終わります")\n        break',correct:false,
+     why:'<b>✕</b> <code>continue</code> が無いので「階段の掃除をします」まで出てしまう。'},
+    {code:'place_list = ["廊下", "階段", "教室", "玄関", "トイレ"]\n\nfor place in place_list:\n    if place == "階段":\n        print("今日は階段の掃除をしません")\n    print(place + "の掃除をします")\n    if place == "教室":\n        print("教室の掃除が終わったので今日の掃除を終わります")',correct:false,
+     why:'<b>✕</b> continue も break も無く、階段も掃除し、玄関・トイレまで続く。'},
+    {code:'place_list = ["廊下", "階段", "教室", "玄関", "トイレ"]\n\nfor place in place_list:\n    if place == "階段":\n        print("今日は階段の掃除をしません")\n        continue\n    print(place + "の掃除をします")\n    if place == "教室":\n        print("教室の掃除が終わったので今日の掃除を終わります")',correct:false,
+     why:'<b>✕</b> <code>break</code> が無いので、教室のあとも玄関・トイレの掃除が続く。'}
+  ],
+  explainTitle:'正解①のコードを1行ずつ',
+  explainLines:[
+    ['    if place == "階段":','階段なら…'],
+    ['        continue','「しません」と表示して、下をとばして次へ。'],
+    ['    print(place + "の掃除をします")','ほかの場所は掃除する。'],
+    ['    if place == "教室":','教室が終わったら…'],
+    ['        break','今日の掃除を終わる。']
+  ]
+},
+/* 13 */ {
+  q:'このプログラムを実行した際に出力される結果を選びなさい。',
+  note:'※ <code>arr.append(value)</code> は配列の一番後ろに value を追加するコードである',
+  qcode:'beverages = ["コーヒー", "紅茶"]\n\nbeverages.append("緑茶")\nbeverages.append("ミルクティー")\nprint(beverages[0])\nprint(beverages[2])',
+  choices:[
+    {code:'コーヒー\n緑茶',correct:true,
+     why:'<b>◯ 正解。</b> 追加後は ["コーヒー", "紅茶", "緑茶", "ミルクティー"]。0番目＝コーヒー、2番目＝緑茶。'},
+    {code:'ミルクティー\nコーヒー',correct:false,
+     why:'<b>✕</b> append は<b>後ろ</b>に追加するので、0番目はコーヒーのまま。'}
+  ],
+  explainTitle:'プログラムを1行ずつ',
+  explainLines:[
+    ['beverages.append("緑茶")','後ろに緑茶を追加。'],
+    ['beverages.append("ミルクティー")','その後ろにミルクティー。'],
+    ['print(beverages[0])','0番目 → コーヒー。'],
+    ['print(beverages[2])','2番目（0から数えて3つ目）→ 緑茶。']
+  ]
+},
+/* 14 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  note:'※ <code>arr.append(value)</code> 末尾に追加 ／ <code>arr.pop()</code> 一番後ろを消去',
+  example:'A大学は負けました\nD大学は負けました\n以下のチームが決勝進出です\n["B大学", "C大学"]',
+  choices:[
+    {code:'team_list = ["A大学", "B大学", "C大学", "D大学"]\nwinner_list = []\n\nfor team in team_list:\n    match:\n        case "A大学":\n            print(team + "は負けました")\n        case "D大学":\n            print(team + "は負けました")\n        case _:\n            winner_list.append(team)\n\nprint("以下のチームが決勝進出です")\nprint(winner_list)',correct:false,
+     why:'<b>✕</b> <code>match:</code> に調べる値が無い → 構文エラー。'},
+    {code:'team_list = ["A大学", "B大学", "C大学", "D大学"]\nwinner_list = []\n\nfor team in team_list:\n    match team:\n        case "A大学":\n            print(team + "は負けました")\n        case "D大学":\n            print(team + "は負けました")\n        case _:\n            winner_list.pop()\n\nprint("以下のチームが決勝進出です")\nprint(winner_list)',correct:false,
+     why:'<b>✕</b> 勝ったチームを追加すべきところで <code>pop()</code>（削除）。空のリストから消そうとしてエラー。'},
+    {code:'team_list = ["A大学", "B大学", "C大学", "D大学"]\nwinner_list = []\n\nfor team in team_list:\n    match team:\n        case "A大学":\n            print(team + "は負けました")\n        case "D大学":\n            print(team + "は負けました")\n        case _:\n            winner_list.append(team)\n\nprint("以下のチームが決勝進出です")\nprint(winner_list)',correct:true,
+     why:'<b>◯ 正解。</b> A・D は負け、それ以外（B・C）を <code>append</code> で勝者リストに追加。'},
+    {code:'team_list = ["A大学", "B大学", "C大学", "D大学"]\nwinner_list = []\n\nfor team in team_list:\n    match:\n        case "A大学":\n            print(team + "は負けました")\n        case "D大学":\n            print(team + "は負けました")\n        case _:\n            winner_list.pop()\n\nprint("以下のチームが決勝進出です")\nprint(winner_list)',correct:false,
+     why:'<b>✕</b> match の値が無く、pop も間違い。'}
+  ],
+  explainTitle:'正解③のコードを1行ずつ',
+  explainLines:[
+    ['for team in team_list:','チームを1つずつ。'],
+    ['    match team:','チーム名で分かれる。'],
+    ['        case "A大学":','A大学・D大学は「負けました」。'],
+    ['        case _:','それ以外のチームは…'],
+    ['            winner_list.append(team)','勝者リストに追加。'],
+    ['print(winner_list)','["B大学", "C大学"]。']
+  ]
+},
+/* 15 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  note:'※ <code>arr.append(value)</code> 末尾に追加 ／ <code>arr.pop()</code> 一番後ろを消去',
+  example:'誕生日会の参加者は以下の通りです\n["ケンジ", "タカシ", "タケシ"]',
+  choices:[
+    {code:'people = ["ケンジ", "タカシ", "ミク", "サトシ", "タケシ"]\nparticipant_list = []\n\nfor person in people:\n    if (person == "ミク") or (person == "サトシ"):\n        continue\n    participant_list.append(person)\n\nprint("誕生日会の参加者は以下の通りです")\nprint(participant_list)',correct:true,
+     why:'<b>◯ 正解。</b> ミク・サトシは <code>continue</code> でとばし、ほかの人を <code>append</code>。'},
+    {code:'people = ["ケンジ", "タカシ", "ミク", "サトシ", "タケシ"]\nparticipant_list = []\n\nfor person in people:\n    if (person == "ミク") or (person == "サトシ"):\n        break\n    participant_list.append(person)\n\nprint("誕生日会の参加者は以下の通りです")\nprint(participant_list)',correct:false,
+     why:'<b>✕</b> <code>break</code> だとミクで終わり、タケシが入らない。'},
+    {code:'people = ["ケンジ", "タカシ", "ミク", "サトシ", "タケシ"]\nparticipant_list = []\n\nfor person in people:\n    if (person == "ミク") or (person == "サトシ"):\n        continue\n    participant_list.pop()\n\nprint("誕生日会の参加者は以下の通りです")\nprint(participant_list)',correct:false,
+     why:'<b>✕</b> 追加ではなく <code>pop()</code>（削除）。空のリストから消そうとしてエラー。'},
+    {code:'people = ["ケンジ", "タカシ", "ミク", "サトシ", "タケシ"]\nparticipant_list = []\n\nfor person in people:\n    if (person == "ミク") or (person == "サトシ"):\n        break\n    participant_list.pop()\n\nprint("誕生日会の参加者は以下の通りです")\nprint(participant_list)',correct:false,
+     why:'<b>✕</b> break も pop も間違い。'}
+  ],
+  explainTitle:'正解①のコードを1行ずつ',
+  explainLines:[
+    ['for person in people:','1人ずつ。'],
+    ['    if (person == "ミク") or (person == "サトシ"):','ミク<b>または</b>サトシなら…'],
+    ['        continue','追加せず次の人へ。'],
+    ['    participant_list.append(person)','参加者リストに追加。']
+  ]
+},
+/* 16 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  note:'※ <code>len(arr)</code> 長さ ／ <code>arr.pop()</code> 一番後ろを消去 ／ <code>arr.pop(num)</code> num番目を消去',
+  example:'100m走の決勝が行われました\n残りはあと2種目です\nハンマー投げの決勝が行われました\n残りはあと1種目です\n棒高跳びの決勝が行われました',
+  choices:[
+    {code:'event_list = ["100m走", "ハンマー投げ", "棒高跳び"]\n\nwhile len(event_list) > 0:\n    print(event_list[0] + "の決勝が行われました")\n    event_list.pop()\n    if len(event_list) > 0:\n        print("残りはあと" + str(len(event_list)) + "種目です")',correct:false,
+     why:'<b>✕</b> <code>pop()</code> は最後を消すので、先頭の100m走がずっと残り、3回とも「100m走の決勝」になる。'},
+    {code:'event_list = ["100m走", "ハンマー投げ", "棒高跳び"]\n\nwhile len(event_list) > 0:\n    print(event_list[0] + "の決勝が行われました")\n    if len(event_list) > 0:\n        print("残りはあと" + str(len(event_list)) + "種目です")',correct:false,
+     why:'<b>✕</b> 種目を消していないのでリストが減らず、永遠に終わらない（無限ループ）。'},
+    {code:'event_list = ["100m走", "ハンマー投げ", "棒高跳び"]\n\nwhile len(event_list) > 0:\n    print(event_list[0] + "の決勝が行われました")\n    event_list.pop(0)\n    if len(event_list) > 0:\n        print("残りはあと" + str(len(event_list)) + "種目です")',correct:true,
+     why:'<b>◯ 正解。</b> 先頭の種目を表示して <code>pop(0)</code> で消す。残りがあれば数を表示。'}
+  ],
+  explainTitle:'正解③のコードを1行ずつ',
+  explainLines:[
+    ['while len(event_list) > 0:','種目が残っている間。'],
+    ['    print(event_list[0] + "の決勝が行われました")','先頭の種目を表示。'],
+    ['    event_list.pop(0)','先頭を消す（次の種目が先頭に）。'],
+    ['    if len(event_list) > 0:','まだ残っていれば…'],
+    ['        print("残りはあと" + str(len(event_list)) + "種目です")','残りの数を表示。']
+  ]
+},
+/* 17 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  note:'※ <code>arr.pop(num)</code> num番目を消去 ／ <code>const.XXXX</code> 定数',
+  example:'2022年の生徒会役員は以下の通りです\n["ユウカ", "ケンタ", "カンタ"]\n2023年の生徒会役員は以下の通りです\n["ユウカ", "カンタ"]',
+  choices:[
+    {code:'import const\n\nofficer_list = ["ユウカ", "ケンタ", "カンタ"]\nconst.COMMITTEE_NAME = "生徒会"\nyear = 2022\n\nprint(str(year) + "年の" + const.COMMITTEE_NAME + "役員は以下の通りです")\nprint(officer_list)\nyear = 2023\nofficer_list.pop(1)\nprint(str(year) + "年の" + const.COMMITTEE_NAME + "役員は以下の通りです")\nprint(officer_list)',correct:true,
+     why:'<b>◯ 正解。</b> 年は普通の変数で2023に変え、<code>pop(1)</code> でケンタを消す。会の名前は定数のまま。'},
+    {code:'import const\n\nofficer_list = ["ユウカ", "ケンタ", "カンタ"]\nconst.COMMITTEE_NAME = "生徒会"\nconst.YEAR = 2022\n\nprint(str(const.YEAR) + "年の" + const.COMMITTEE_NAME + "役員は以下の通りです")\nprint(officer_list)\nconst.YEAR = 2023\nprint(str(const.YEAR) + "年の" + const.COMMITTEE_NAME + "役員は以下の通りです")\nprint(officer_list)',correct:false,
+     why:'<b>✕</b> 定数 <code>const.YEAR</code> を書き換えていてエラー。ケンタも消していない。'},
+    {code:'import const\n\nofficer_list = ["ユウカ", "ケンタ", "カンタ"]\nconst.COMMITTEE_NAME = "生徒会"\nconst.YEAR = 2022\n\nprint(str(const.YEAR) + "年の" + const.COMMITTEE_NAME + "役員は以下の通りです")\nprint(officer_list)\nconst.YEAR = 2023\nofficer_list.pop(1)\nprint(str(const.YEAR) + "年の" + const.COMMITTEE_NAME + "役員は以下の通りです")\nprint(officer_list)',correct:false,
+     why:'<b>✕</b> pop は正しいが、定数 <code>const.YEAR</code> を書き換えていてエラー。'},
+    {code:'import const\n\nofficer_list = ["ユウカ", "ケンタ", "カンタ"]\nconst.COMMITTEE_NAME = "生徒会"\nyear = 2022\n\nprint(str(year) + "年の" + const.COMMITTEE_NAME + "役員は以下の通りです")\nprint(officer_list)\nyear = 2023\nprint(str(year) + "年の" + const.COMMITTEE_NAME + "役員は以下の通りです")\nprint(officer_list)',correct:false,
+     why:'<b>✕</b> ケンタを消す <code>pop(1)</code> が無いので、2023年も3人のまま。'}
+  ],
+  explainTitle:'正解①のコードを1行ずつ',
+  explainLines:[
+    ['const.COMMITTEE_NAME = "生徒会"','変わらない会の名前は定数。'],
+    ['year = 2022','年は変わるので普通の変数。'],
+    ['year = 2023','2023年に変える。'],
+    ['officer_list.pop(1)','1番目（ケンタ）を消す。'],
+    ['print(officer_list)','["ユウカ", "カンタ"]。']
+  ]
+},
+/* 18 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  note:'※ <code>len(arr)</code> 長さ ／ <code>arr.pop()</code> 一番後ろを消去 ／ <code>arr.pop(num)</code> num番目を消去',
+  example:'マンガはリサイクルショップに持っていきます\n絵本は親戚の子どもに渡します\n観光ガイドブックは学校に寄付します',
+  choices:[
+    {code:'def classify(name):\n    match name:\n        case "マンガ":\n            print(name + "はリサイクルショップに持っていきます")\n        case "絵本":\n            print(name + "は親戚の子どもに渡します")\n        case "観光ガイドブック":\n            print(name + "は学校に寄付します")\n\nbook_list = ["マンガ", "絵本", "観光ガイドブック"]\n\nwhile len(book_list) > 0:\n    classify(book_list[0])\n    book_list.pop()',correct:false,
+     why:'<b>✕</b> <code>pop()</code> は最後を消すので、先頭のマンガが3回表示される。'},
+    {code:'def classify(name):\n    match name:\n        case "マンガ":\n            print(name + "はリサイクルショップに持っていきます")\n        case "絵本":\n            print(name + "は親戚の子どもに渡します")\n        case "観光ガイドブック":\n            print(name + "は学校に寄付します")\n\nbook_list = ["マンガ", "絵本", "観光ガイドブック"]\n\nwhile len(book_list) > 0:\n    classify(book_list[0])\n    book_list.pop(0)',correct:true,
+     why:'<b>◯ 正解。</b> 先頭の本を分類して <code>pop(0)</code> で消し、次の本へ。'},
+    {code:'def classify(name):\n    match:\n        case "マンガ":\n            print(name + "はリサイクルショップに持っていきます")\n        case "絵本":\n            print(name + "は親戚の子どもに渡します")\n        case "観光ガイドブック":\n            print(name + "は学校に寄付します")\n\nbook_list = ["マンガ", "絵本", "観光ガイドブック"]\n\nwhile len(book_list) > 0:\n    classify(book_list[0])\n    book_list.pop()',correct:false,
+     why:'<b>✕</b> <code>match:</code> の値が無い（構文エラー）＋ pop() も間違い。'},
+    {code:'def classify(name):\n    match:\n        case "マンガ":\n            print(name + "はリサイクルショップに持っていきます")\n        case "絵本":\n            print(name + "は親戚の子どもに渡します")\n        case "観光ガイドブック":\n            print(name + "は学校に寄付します")\n\nbook_list = ["マンガ", "絵本", "観光ガイドブック"]\n\nwhile len(book_list) > 0:\n    classify(book_list[0])\n    book_list.pop(0)',correct:false,
+     why:'<b>✕</b> pop(0) は正しいが、<code>match:</code> の値が無い → 構文エラー。'}
+  ],
+  explainTitle:'正解②のコードを1行ずつ',
+  explainLines:[
+    ['def classify(name):','本の名前で行き先を決める関数。'],
+    ['    match name:','名前で分かれる。'],
+    ['while len(book_list) > 0:','本が残っている間。'],
+    ['    classify(book_list[0])','先頭の本を分類。'],
+    ['    book_list.pop(0)','先頭を消して次の本へ。']
+  ]
+},
+/* 19 */ {
+  q:'このプログラムを実行した際に出力される結果を選びなさい。',
+  note:'※ <code>arr.pop(num)</code> は配列の要素番号が num の要素を消去するコードである',
+  qcode:'foods = ["ピーマン", "玉ねぎ", "にんじん", "牛肉", "豚肉"]\n\nfoods.pop(1)\nfor food in foods:\n    if food == "牛肉":\n        continue\n    print(food + "を買います")',
+  choices:[
+    {code:'ピーマンを買います\nにんじんを買います\n豚肉を買います',correct:true,
+     why:'<b>◯ 正解。</b> <code>pop(1)</code> で玉ねぎが消え、牛肉は <code>continue</code> でとばす。'},
+    {code:'ピーマンを買います\nにんじんを買います',correct:false,
+     why:'<b>✕</b> これは break の場合。continue なので豚肉も表示される。'},
+    {code:'ピーマンを買います\n玉ねぎを買います\nにんじんを買います\n豚肉を買います',correct:false,
+     why:'<b>✕</b> <code>pop(1)</code> で1番目の玉ねぎは消えている。'},
+    {code:'ピーマンを買います\n玉ねぎを買います\nにんじんを買います',correct:false,
+     why:'<b>✕</b> 玉ねぎは消えている。牛肉のあとも続くので豚肉も出る。'}
+  ],
+  explainTitle:'プログラムを1行ずつ',
+  explainLines:[
+    ['foods.pop(1)','1番目（0から数えて2つ目）の玉ねぎを消す。'],
+    ['for food in foods:','ピーマン・にんじん・牛肉・豚肉の順。'],
+    ['    if food == "牛肉":','牛肉なら…'],
+    ['        continue','表示せずに次へ。'],
+    ['    print(food + "を買います")','ピーマン・にんじん・豚肉を表示。']
+  ]
+},
+/* 20 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  note:'※ <code>arr.append(value)</code> 末尾に追加 ／ <code>arr.pop()</code> 一番後ろを消去 ／ <code>arr.pop(num)</code> num番目を消去',
+  example:'2022年度の役員は以下の人でした\n["佐藤", "土田", "山田"]\n2023年度の役員は以下の人です\n["佐藤", "土田", "後藤"]',
+  choices:[
+    {code:'board_members = ["佐藤", "土田", "山田"]\n\nprint("2022年度の役員は以下の人でした")\nprint(board_members)\nboard_members.pop()\nprint("2023年度の役員は以下の人です")\nprint(board_members)',correct:false,
+     why:'<b>✕</b> 山田を消しただけで、後藤を追加していない。'},
+    {code:'board_members = ["佐藤", "土田", "山田"]\n\nprint("2022年度の役員は以下の人でした")\nprint(board_members)\nboard_members.pop(0)\nboard_members.append("後藤")\nprint("2023年度の役員は以下の人です")\nprint(board_members)',correct:false,
+     why:'<b>✕</b> <code>pop(0)</code> は先頭の佐藤を消してしまう。'},
+    {code:'board_members = ["佐藤", "土田", "山田"]\n\nprint("2022年度の役員は以下の人でした")\nprint(board_members)\nboard_members.pop(0)\nprint("2023年度の役員は以下の人です")\nprint(board_members)',correct:false,
+     why:'<b>✕</b> 佐藤を消し、後藤も追加していない。'},
+    {code:'board_members = ["佐藤", "土田", "山田"]\n\nprint("2022年度の役員は以下の人でした")\nprint(board_members)\nboard_members.pop()\nboard_members.append("後藤")\nprint("2023年度の役員は以下の人です")\nprint(board_members)',correct:true,
+     why:'<b>◯ 正解。</b> <code>pop()</code> で最後の山田を消し、<code>append</code> で後藤を後ろに追加。'}
+  ],
+  explainTitle:'正解④のコードを1行ずつ',
+  explainLines:[
+    ['board_members.pop()','番号なし → 最後の山田を消す。'],
+    ['board_members.append("後藤")','後ろに後藤を追加。'],
+    ['print(board_members)','["佐藤", "土田", "後藤"]。']
+  ]
+},
+/* 21 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  note:'※ <code>value in arr</code> 含まれるかを True/False で返す ／ <code>arr.index(value)</code> 一致する要素の番号',
+  example:'チケットはカバンに入っています\nタオルはまだカバンに入っていません',
+  choices:[
+    {code:'def check_luggage(luggage_list, name):\n    if name in luggage_list:\n        print(name + "はカバンに入っています")\n    else:\n        print(name + "はまだカバンに入っていません")\n\nluggage_list = ["チケット", "日焼け止め"]\n\ncheck_luggage(luggage_list, "チケット")\ncheck_luggage(luggage_list, "タオル")',correct:true,
+     why:'<b>◯ 正解。</b> <code>in</code> で「入っているか」を調べる。チケットはある、タオルは無い。'},
+    {code:'def check_luggage(luggage_list, name):\n    if luggage_list.index(name):\n        print(name + "はカバンに入っています")\n    else:\n        print(name + "はまだカバンに入っていません")\n\nluggage_list = ["チケット", "日焼け止め"]\n\ncheck_luggage(luggage_list, "チケット")\ncheck_luggage(luggage_list, "タオル")',correct:false,
+     why:'<b>✕</b> <code>index</code> は番号を返す。チケットは0番なので「偽」扱いになり、タオルは無いのでエラー。'}
+  ],
+  explainTitle:'正解①のコードを1行ずつ',
+  explainLines:[
+    ['def check_luggage(luggage_list, name):','荷物リストと品物名を受け取る関数。'],
+    ['    if name in luggage_list:','その品物がリストに<b>含まれていれば</b>…'],
+    ['        print(name + "はカバンに入っています")','「入っています」。'],
+    ['    else:','無ければ「まだ入っていません」。']
+  ]
+},
+/* 22 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  note:'※ <code>len(arr)</code> 長さ ／ <code>arr.pop(num)</code> num番目を消去 ／ <code>value in arr</code> 含まれるか ／ <code>arr.index(value)</code> 一致する要素の番号',
+  example:'授業が終わりました\n部活が終わりました\n買い物が終わりました',
+  choices:[
+    {code:'task_list = ["採点", "授業", "部活", "買い物"]\ndone_task = "採点"\n\nif task_list.index(done_task):\n    task_list.pop(task_list.index(done_task))\n\nwhile len(task_list) > 0:\n    print(task_list[0] + "が終わりました")\n    task_list.pop(0)',correct:false,
+     why:'<b>✕</b> 「採点」の番号は0なので <code>if</code> が偽になり、採点が消えずに「採点が終わりました」も出る。'},
+    {code:'task_list = ["採点", "授業", "部活", "買い物"]\ndone_task = "採点"\n\nif done_task in task_list:\n    task_list.pop(task_list.index(done_task))\n\nif len(task_list) > 0:\n    print(task_list[0] + "が終わりました")\n    task_list.pop(0)',correct:false,
+     why:'<b>✕</b> 2つ目が <code>if</code> なので1回だけ。「授業が終わりました」しか出ない。'},
+    {code:'task_list = ["採点", "授業", "部活", "買い物"]\ndone_task = "採点"\n\nif done_task in task_list:\n    task_list.pop(task_list.index(done_task))\n\nwhile len(task_list) > 0:\n    print(task_list[0] + "が終わりました")\n    task_list.pop(0)',correct:true,
+     why:'<b>◯ 正解。</b> <code>in</code> で確かめて採点を消し、<code>while</code> で残りを順に表示。'},
+    {code:'task_list = ["採点", "授業", "部活", "買い物"]\ndone_task = "採点"\n\nif task_list.index(done_task):\n    task_list.pop(task_list.index(done_task))\n\nif len(task_list) > 0:\n    print(task_list[0] + "が終わりました")\n    task_list.pop(0)',correct:false,
+     why:'<b>✕</b> 採点が消えず、しかも1回だけ。'}
+  ],
+  explainTitle:'正解③のコードを1行ずつ',
+  explainLines:[
+    ['if done_task in task_list:','「採点」がリストにあれば…'],
+    ['    task_list.pop(task_list.index(done_task))','その番号を調べて消す。'],
+    ['while len(task_list) > 0:','残りの用事がある間。'],
+    ['    print(task_list[0] + "が終わりました")','先頭を表示して…'],
+    ['    task_list.pop(0)','消す（授業→部活→買い物）。']
+  ],
+  postNote:'ポイント：<code>index</code> で見つかった番号が 0 だと if では「偽」になる。「含まれるか」は <code>in</code> で調べるのが確実。'
+},
+/* 23 */ {
+  q:'このプログラムを実行した際に出力される結果を選びなさい。',
+  note:'※ <code>arr.index(value)</code> は、配列内で value と一致する要素の要素番号を返すコードである',
+  qcode:'def search_item(target, num, arr):\n    print(target + "は" + arr[num] + "の箱の中です")\n\nitems = ["紙皿", "紙コップ", "トング", "炭"]\nbox_labels = ["A", "B", "C", "D", "E"]\n\nfor item in items:\n    if item == "トング":\n        break\n    search_item(item, items.index(item), box_labels)',
+  choices:[
+    {code:'紙皿はAの箱の中です\n紙コップはBの箱の中です',correct:true,
+     why:'<b>◯ 正解。</b> 紙皿の番号0→A、紙コップの番号1→B。トングで <code>break</code>。'},
+    {code:'紙皿はBの箱の中です\n紙コップはCの箱の中です\n炭はEの箱の中です',correct:false,
+     why:'<b>✕</b> 番号は0から。トングで break するので炭は出ない。'},
+    {code:'紙皿はBの箱の中です\n紙コップはCの箱の中です',correct:false,
+     why:'<b>✕</b> 番号は0から数えるので、紙皿は0番＝A。'},
+    {code:'紙皿はAの箱の中です\n紙コップはBの箱の中です\n炭はDの箱の中です',correct:false,
+     why:'<b>✕</b> break でループが終わるので、炭まで進まない。'}
+  ],
+  explainTitle:'プログラムを1行ずつ',
+  explainLines:[
+    ['def search_item(target, num, arr):','品物・番号・箱リストを受け取り表示する関数。'],
+    ['for item in items:','品物を1つずつ。'],
+    ['    if item == "トング":','トングになったら…'],
+    ['        break','ループ終了。'],
+    ['    search_item(item, items.index(item), box_labels)','品物の番号（0, 1）で箱（A, B）を選ぶ。']
+  ]
+},
+/* 24 */ {
+  q:'「["部活", "片付け", "勉強", "掃除"]」と出力されるプログラムを選びなさい。',
+  note:'※ <code>arr.append(value)</code> 末尾に追加 ／ <code>arr.pop(num)</code> num番目を消去 ／ <code>value in arr</code> 含まれるか ／ <code>arr.index(value)</code> 一致する要素の番号',
+  choices:[
+    {code:'tasks = ["勉強", "掃除", "部活", "片付け"]\nindex = tasks.index("部活")\n\nfor i in range(0, index):\n    tasks.append(tasks[0])\n    tasks.pop(0)\n\nprint(tasks)',correct:true,
+     why:'<b>◯ 正解。</b> 部活の番号は2。先頭を後ろに回す（append→pop(0)）を2回くり返す。'},
+    {code:'tasks = ["勉強", "掃除", "部活", "片付け"]\nindex = "部活" in tasks\n\nfor i in range(0, index):\n    tasks.pop(0)\n\nprint(tasks)',correct:false,
+     why:'<b>✕</b> <code>in</code> は True（＝1扱い）を返すだけ。しかも後ろに回さず消しているので、勉強が消える。'},
+    {code:'tasks = ["勉強", "掃除", "部活", "片付け"]\nindex = "部活" in tasks\n\nfor i in range(0, index):\n    tasks.append(tasks[0])\n    tasks.pop(0)\n\nprint(tasks)',correct:false,
+     why:'<b>✕</b> <code>in</code> は番号ではなく True を返すので、1回しか回らない。'},
+    {code:'tasks = ["勉強", "掃除", "部活", "片付け"]\nindex = tasks.index("部活")\n\nfor i in range(0, index):\n    tasks.pop(0)\n\nprint(tasks)',correct:false,
+     why:'<b>✕</b> 消すだけで後ろに追加していないので、["部活", "片付け"] になる。'}
+  ],
+  explainTitle:'正解①のコードを1行ずつ',
+  explainLines:[
+    ['index = tasks.index("部活")','部活は0から数えて2番目 → 2。'],
+    ['for i in range(0, index):','2回くり返す。'],
+    ['    tasks.append(tasks[0])','先頭を後ろに追加して…'],
+    ['    tasks.pop(0)','先頭を消す（＝先頭を後ろに回す）。'],
+    ['print(tasks)','["部活", "片付け", "勉強", "掃除"]。']
+  ],
+  postNote:'補足：<code>"部活" in tasks</code> は True。Python では True を数として使うと 1 になるので、<code>range(0, True)</code> は1回だけ回ります。'
+},
+/* 25 */ {
+  q:'以下のように出力されるプログラムを選びなさい。',
+  note:'※ <code>arr.pop(num)</code> num番目を消去 ／ <code>value in arr</code> 含まれるか ／ <code>arr.index(value)</code> 一致する要素の番号',
+  example:'以下のお支払い方法が選択できます\n["コンビニ支払い", "クレジットカード"]',
+  choices:[
+    {code:'payment_method = ["コンビニ支払い", "クレジットカード", "銀行振込"]\nnum = payment_method.index("銀行振込")\n\npayment_method.pop(0)\nprint("以下のお支払い方法が選択できます")\nprint(payment_method)',correct:false,
+     why:'<b>✕</b> 番号を調べたのに <code>pop(0)</code> で先頭のコンビニ支払いを消している。'},
+    {code:'payment_method = ["コンビニ支払い", "クレジットカード", "銀行振込"]\nnum = "銀行振込" in payment_method\n\npayment_method.pop(num)\nprint("以下のお支払い方法が選択できます")\nprint(payment_method)',correct:false,
+     why:'<b>✕</b> <code>in</code> は True（＝1）を返すので、1番目のクレジットカードが消えてしまう。'},
+    {code:'payment_method = ["コンビニ支払い", "クレジットカード", "銀行振込"]\nnum = "銀行振込" in payment_method\n\npayment_method.pop(0)\nprint("以下のお支払い方法が選択できます")\nprint(payment_method)',correct:false,
+     why:'<b>✕</b> 先頭のコンビニ支払いを消している。'},
+    {code:'payment_method = ["コンビニ支払い", "クレジットカード", "銀行振込"]\nnum = payment_method.index("銀行振込")\n\npayment_method.pop(num)\nprint("以下のお支払い方法が選択できます")\nprint(payment_method)',correct:true,
+     why:'<b>◯ 正解。</b> <code>index</code> で銀行振込の番号（2）を調べ、<code>pop(num)</code> でそれを消す。'}
+  ],
+  explainTitle:'正解④のコードを1行ずつ',
+  explainLines:[
+    ['num = payment_method.index("銀行振込")','銀行振込の番号 → 2。'],
+    ['payment_method.pop(num)','2番目（銀行振込）を消す。'],
+    ['print(payment_method)','["コンビニ支払い", "クレジットカード"]。']
+  ]
+},
+/* 26 */ {
+  type:'written',
+  q:'生徒のテストの点数リスト student_scores のうち、合格基準 passing_score 点以上の点数のみを一次元リストで出力するプログラムを完成させなさい（解答欄に入るコードを書く）。',
+  constraint:'制約：student_scores の要素数は 1以上40以下 ／ 各要素は 0以上100以下の整数 ／ passing_score は 0以上100以下の整数',
+  example:'【入力】student_scores = [74, 33, 39, 45, 90, 40, 61], passing_score = 40\n【出力】[74, 45, 90, 40, 61]',
+  givenCode:'def filter_passed_scores(scores, border):\n    result = []\n    （ここが解答欄）\n    return result\n\nstudent_scores = [74, 33, 39, 45, 90, 40, 61]\npassing_score = 40\n\nanswer = filter_passed_scores(student_scores, passing_score)\nprint(answer)',
+  answerCode:'    for score in scores:\n        if score >= border:\n            result.append(score)',
+  explainTitle:'解答例の考え方（1行ずつ）',
+  explainLines:[
+    ['    for score in scores:','点数を1つずつ取り出す。'],
+    ['        if score >= border:','合格点（40）<b>以上</b>なら…'],
+    ['            result.append(score)','結果リストに追加。'],
+    ['    return result','[74, 45, 90, 40, 61] を返す。']
+  ],
+  postNote:'ポイント：「以上」なので <code>&gt;=</code>。<code>&gt;</code> にすると、ちょうど40点の人が入らなくなる。'
+}
+];
+
+/* ===== エンジン ===== */
+let current = 0;
+let writtenAnswer = '';
+function tabKey(e,el){
+  if(e.key!=='Tab') return;
+  e.preventDefault();
+  const p=el.selectionStart;
+  el.value=el.value.slice(0,p)+'    '+el.value.slice(el.selectionEnd);
+  el.selectionStart=el.selectionEnd=p+4;
+  writtenAnswer=el.value;
+}
+const answered = new Array(QUIZ.length).fill(null);   // 選択式:選んだ番号 / 記述式:"revealed"
+const scoredCount = QUIZ.filter(function(x){return x.type!=='written';}).length;
+
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* 不正解の選択肢で「原因の行」を指定（問題index → 選択肢index → その行の文字列） */
+const BAD = {
+  0:{1:['const.START_TIME = "18時"']},
+  1:{1:['match:'],2:['"氷":','"水":','"水蒸気":'],3:['case == "氷":','case == "水":','case == "水蒸気":']},
+  2:{0:['if "再起動":','if "シャットダウン":','if "起動":'],1:['const.OUTPUT = "パソコンを起動し直します"','const.OUTPUT = "パソコンの電源を切ります"','const.OUTPUT = "パソコンを起動します"'],3:['if "再起動":','if "シャットダウン":','if "起動":']},
+  3:{0:['for True:'],2:['while:']},
+  4:{0:['const.FREE_CAPACITY = const.FREE_CAPACITY - download_files[count]'],1:['while:','const.FREE_CAPACITY = const.FREE_CAPACITY - download_files[count]'],3:['while:']},
+  5:{1:['while:'],2:['while:','"野球場":','"博物館":','"遊園地":'],3:['"野球場":','"博物館":','"遊園地":']},
+  6:{1:['break'],2:['print(country)']},
+  7:{0:['if len(units) > 0:','break'],1:['if len(units) > 0:','continue'],2:['break']},
+  8:{0:['continue']},
+  9:{0:['const.COUNT = const.COUNT + 1','print("食料がなくなりました")'],1:['const.COUNT = const.COUNT + 1'],3:['print("食料がなくなりました")']},
+  10:{0:['match:'],2:['match:','continue'],3:['continue']},
+  11:{1:['print(place + "の掃除をします")'],2:['print(place + "の掃除をします")','print("教室の掃除が終わったので今日の掃除を終わります")'],3:['print("教室の掃除が終わったので今日の掃除を終わります")']},
+  12:{},
+  13:{0:['match:'],1:['winner_list.pop()'],3:['match:','winner_list.pop()']},
+  14:{1:['break'],2:['participant_list.pop()'],3:['break','participant_list.pop()']},
+  15:{0:['event_list.pop()'],1:['print(event_list[0] + "の決勝が行われました")']},
+  16:{1:['const.YEAR = 2023'],2:['const.YEAR = 2023'],3:['year = 2023']},
+  17:{0:['book_list.pop()'],2:['match:','book_list.pop()'],3:['match:']},
+  18:{},
+  19:{0:['board_members.pop()'],1:['board_members.pop(0)'],2:['board_members.pop(0)']},
+  20:{1:['if luggage_list.index(name):']},
+  21:{0:['if task_list.index(done_task):'],1:['if len(task_list) > 0:'],3:['if task_list.index(done_task):','if len(task_list) > 0:']},
+  22:{},
+  23:{1:['index = "部活" in tasks'],2:['index = "部活" in tasks'],3:['tasks.pop(0)']},
+  24:{0:['payment_method.pop(0)'],1:['num = "銀行振込" in payment_method'],2:['num = "銀行振込" in payment_method','payment_method.pop(0)']}
+};
+
+/* コードを1行ずつ描画。答えた後は「原因の行」を赤くハイライト。 */
+function renderCodeHtml(code, badLines, done){
+  const lines = code.split('\n');
+  let h = '<pre>';
+  lines.forEach(function(ln){
+    const isBad = done && badLines.indexOf(ln.trim()) !== -1 && ln.trim() !== '';
+    h += '<span class="cline'+(isBad?' bad':'')+'">'+esc(ln)+(isBad?'<span class="mk">  ← ここが原因</span>':'')+'</span>';
+  });
+  h += '</pre>';
+  return h;
+}
+
+function render(){
+  if(current >= QUIZ.length){ renderFinal(); return; }
+  const item = QUIZ[current];
+  const isWritten = item.type === 'written';
+  const picked = answered[current];
+  const done = picked !== null;
+
+  let html = '<div class="card">';
+  html += '<div class="qhead"><span class="qno">第' + (current+1) + '問</span>';
+  html += '<span class="qtype">' + (isWritten ? '記述式' : '選択式') + '</span></div>';
+  html += '<div class="qtext">' + item.q + '</div>';
+  if(item.constraint) html += '<div class="qnote">' + item.constraint + '</div>';
+  if(item.example) html += '<div class="qexample">【出力例】\n' + esc(item.example) + '</div>';
+  if(item.note) html += '<div class="qnote">' + item.note + '</div>';
+  if(item.qcode) html += '<div class="qnote" style="margin-bottom:4px;">プログラム：</div><pre id="qcodePre" style="margin-bottom:14px;"></pre>';
+
+  if(isWritten){
+    html += '<div class="qnote" style="margin-bottom:4px;">問題プログラム：</div>';
+    html += '<pre id="givenPre"></pre>';
+    html += '<div class="qnote" style="margin:14px 0 4px;">✏️ 解答欄（ここに関数を書いてみよう）：</div>';
+    html += '<textarea id="writtenBox" spellcheck="false" placeholder="例）def ...." style="width:100%;min-height:110px;padding:10px 12px;border:1.5px solid var(--line);border-radius:8px;font-family:Consolas,Menlo,monospace;font-size:.9rem;line-height:1.5;resize:vertical;" oninput="writtenAnswer=this.value" onkeydown="tabKey(event,this)"></textarea>';
+    if(!done){
+      html += '<div style="margin-top:12px;"><button class="reveal-btn" onclick="reveal()">解答例を見る</button></div>';
+    }
+    html += '<div class="result ' + (done?'show':'') + '" style="margin-top:14px;">';
+    html += '<div class="qnote" style="margin-bottom:4px;">解答例（自分の答えと見比べよう）：</div>';
+    html += '<pre id="ansPre"></pre>';
+    html += buildExplain(item);
+    html += '</div>';
+  } else {
+    item.choices.forEach(function(c,i){
+      let cls='choice';
+      if(done){
+        if(i===picked) cls += c.correct?' correct':' wrong';
+        else if(c.correct) cls += ' correct';
+      }
+      const badLines = (BAD[current] && BAD[current][i]) ? BAD[current][i] : [];
+      html += '<button class="'+cls+'" '+(done?'disabled':'')+' onclick="pick('+i+')"><span class="label">'+LABELS[i]+'</span>'+renderCodeHtml(c.code, badLines, done)+'</button>';
+      html += '<div class="why '+(c.correct?'ok':'ng')+(done?' show':'')+'">'+c.why+'</div>';
+    });
+    html += '<div class="result '+(done?'show':'')+'">';
+    const ci = item.choices.findIndex(function(c){return c.correct;});
+    const right = done && picked===ci;
+    html += '<div class="badge '+(right?'ok':'ng')+'">'+(done?(right?'◯ 正解！':'✕ 残念、不正解（正解は'+LABELS[ci]+'）'):'')+'</div>';
+    html += buildExplain(item);
+    html += '</div>';
+  }
+  html += '</div>';
+  document.getElementById('stage').innerHTML = html;
+
+  // 記述式のコードは textContent で（選択式のコードは renderCodeHtml で描画済み）
+  if(isWritten){
+    document.getElementById('givenPre').textContent = item.givenCode;
+    document.getElementById('writtenBox').value = writtenAnswer;
+    if(document.getElementById('ansPre')) document.getElementById('ansPre').textContent = item.answerCode;
+  }
+  if(item.qcode) document.getElementById('qcodePre').textContent = item.qcode;
+  const codes = document.querySelectorAll('#stage .line code');
+  item.explainLines.forEach(function(l,i){ if(codes[i]) codes[i].textContent = l[0]; });
+
+  document.getElementById('ptext').textContent = (current+1)+' / '+QUIZ.length+' 問';
+  document.getElementById('pbar').style.width = ((current+1)/QUIZ.length*100)+'%';
+  document.getElementById('backBtn').disabled = (current===0);
+  const nb = document.getElementById('nextBtn');
+  nb.disabled = !done;
+  nb.textContent = (current===QUIZ.length-1)?'結果を見る →':'次へ →';
+  updateJump();
+}
+
+function buildExplain(item){
+  let h = '<div class="explain"><div class="head">'+item.explainTitle+'</div><div class="lines">';
+  item.explainLines.forEach(function(l){
+    h += '<div class="line"><code></code><span>'+l[1]+'</span></div>';
+  });
+  h += '</div></div>';
+  if(item.postNote) h += '<div class="postnote">'+item.postNote+'</div>';
+  return h;
+}
+
+function pick(i){
+  if(answered[current]!==null) return;
+  answered[current]=i;
+  render();
+}
+function reveal(){
+  answered[current]='revealed';
+  render();
+}
+function goNext(){ if(answered[current]===null) return; current++; render(); }
+function goBack(){ if(current>0){ current--; render(); } }
+
+function updateJump(){
+  const el = document.getElementById('jumpNums');
+  let s='';
+  for(let i=0;i<QUIZ.length;i++){
+    const mark = answered[i]!==null ? '●' : '○';
+    const style = i===current ? 'font-weight:800;color:var(--accent);' : 'color:var(--sub);';
+    s += '<a href="#" onclick="jumpTo('+i+');return false;" style="text-decoration:none;margin:0 3px;'+style+'">'+(i+1)+'</a>';
+  }
+  el.innerHTML = s;
+}
+function jumpTo(i){ current=i; render(); window.scrollTo(0,0); }
+
+function renderFinal(){
+  let score=0;
+  QUIZ.forEach(function(item,qi){
+    if(item.type==='written') return;
+    const ci=item.choices.findIndex(function(c){return c.correct;});
+    if(answered[qi]===ci) score++;
+  });
+  document.getElementById('ptext').textContent='結果';
+  document.getElementById('pbar').style.width='100%';
+  document.getElementById('nav').style.display='none';
+  const perfect = score===scoredCount;
+  document.getElementById('stage').innerHTML =
+    '<div class="card final">'+
+    '<div>おつかれさまでした！</div>'+
+    '<div class="score">'+score+' / '+scoredCount+' 問 正解</div>'+
+    '<div class="msg">'+(perfect?'全問正解！すばらしい🎉':'まちがえた問題は、下の番号や「戻る」で見直せます。')+'<br>（第26問は記述式のため採点には含みません）</div>'+
+    '<button class="nav-btn primary" onclick="restart()">もう一度やる</button>'+
+    '</div>';
+  updateJump();
+  document.getElementById('nav').style.display='flex';
+  document.getElementById('backBtn').disabled=false;
+  document.getElementById('nextBtn').disabled=true;
+  document.getElementById('nextBtn').textContent='結果を見る →';
+}
+function restart(){ writtenAnswer=''; current=0; for(let i=0;i<answered.length;i++) answered[i]=null; render(); window.scrollTo(0,0); }
+
+render();
+</script>
+</body>
+</html>
